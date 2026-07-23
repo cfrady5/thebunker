@@ -7,8 +7,26 @@ import type { BusinessMode, SiteSettings } from "@/types";
  * renderable (in pre-opening mode) before Supabase is configured
  * and act as a safety net if a settings row is missing.
  */
+const VALID_MODES: BusinessMode[] = [
+  "pre_opening",
+  "reservations_open",
+  "fully_operational",
+  "temporarily_closed",
+];
+
+/**
+ * Default mode when the database has no business_mode row (or no
+ * database is connected). Overridable per-environment with
+ * BUSINESS_MODE; once Supabase is connected, the admin switcher
+ * (site_settings.business_mode) always wins.
+ */
+function defaultBusinessMode(): BusinessMode {
+  const env = process.env.BUSINESS_MODE as BusinessMode | undefined;
+  return env && VALID_MODES.includes(env) ? env : "reservations_open";
+}
+
 export const DEFAULT_SETTINGS: SiteSettings = {
-  business_mode: "pre_opening",
+  business_mode: defaultBusinessMode(),
   opening_label: "Fall 2026",
   facility: {
     name: "The Bunker Indoor Golf",

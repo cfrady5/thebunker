@@ -71,11 +71,14 @@ groups:
 ### Database setup
 
 1. Create a Supabase project.
-2. Apply migrations in order — they're numbered:
+2. **Fastest path:** paste `supabase/setup_all.sql` into the Supabase SQL
+   Editor and run it once — it contains all migrations plus seed data.
+
+   Or apply migrations individually, in order — they're numbered:
    ```bash
    supabase db push          # or run supabase/migrations/*.sql in order
    ```
-3. Load seed data:
+   then load seed data:
    ```bash
    psql $DATABASE_URL -f supabase/seed.sql
    ```

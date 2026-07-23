@@ -54,13 +54,11 @@ test.describe("public site", () => {
     await expect(page.getByText(/interest list/i).first()).toBeVisible();
   });
 
-  test("booking page shows pre-opening state before launch", async ({ page }) => {
+  test("booking page shows the booking flow when reservations are open", async ({
+    page,
+  }) => {
     await page.goto("/book");
-    await expect(
-      page.getByRole("heading", { name: /reservations open soon/i }),
-    ).toBeVisible();
-    // Interest form present instead of fake availability
-    await expect(page.getByLabel(/email/i).first()).toBeVisible();
+    await expect(page.getByRole("heading", { name: /book a bay/i })).toBeVisible();
   });
 
   test("opening list form validates email", async ({ page }) => {
