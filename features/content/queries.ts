@@ -1,5 +1,5 @@
 import { cache } from "react";
-import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { createSupabaseStaticClient } from "@/lib/supabase/static";
 import type {
   EventRow,
   League,
@@ -24,7 +24,7 @@ import {
  */
 
 export const getLeagues = cache(async (): Promise<League[]> => {
-  const supabase = await createSupabaseServerClient();
+  const supabase = createSupabaseStaticClient();
   if (!supabase) return FALLBACK_LEAGUES;
   const { data, error } = await supabase
     .from("leagues")
@@ -41,7 +41,7 @@ export const getLeagueBySlug = cache(async (slug: string): Promise<League | null
 });
 
 export const getPrograms = cache(async (): Promise<Program[]> => {
-  const supabase = await createSupabaseServerClient();
+  const supabase = createSupabaseStaticClient();
   if (!supabase) return FALLBACK_PROGRAMS;
   const { data, error } = await supabase
     .from("programs")
@@ -53,7 +53,7 @@ export const getPrograms = cache(async (): Promise<Program[]> => {
 });
 
 export const getPublishedEvents = cache(async (): Promise<EventRow[]> => {
-  const supabase = await createSupabaseServerClient();
+  const supabase = createSupabaseStaticClient();
   if (!supabase) return FALLBACK_EVENTS;
   const { data, error } = await supabase
     .from("events")
@@ -70,7 +70,7 @@ export const getEventBySlug = cache(async (slug: string): Promise<EventRow | nul
 });
 
 export const getMembershipPlans = cache(async (): Promise<MembershipPlan[]> => {
-  const supabase = await createSupabaseServerClient();
+  const supabase = createSupabaseStaticClient();
   if (!supabase) return FALLBACK_MEMBERSHIP_PLANS;
   const { data, error } = await supabase
     .from("membership_plans")
@@ -83,7 +83,7 @@ export const getMembershipPlans = cache(async (): Promise<MembershipPlan[]> => {
 
 export const getMenu = cache(
   async (): Promise<{ categories: MenuCategory[]; items: MenuItem[] }> => {
-    const supabase = await createSupabaseServerClient();
+    const supabase = createSupabaseStaticClient();
     if (!supabase) return FALLBACK_MENU;
     const [cats, items] = await Promise.all([
       supabase.from("menu_categories").select("*").eq("active", true).order("sort_order"),
@@ -100,7 +100,7 @@ export const getMenu = cache(
 );
 
 export const getOpeningUpdates = cache(async (): Promise<OpeningUpdate[]> => {
-  const supabase = await createSupabaseServerClient();
+  const supabase = createSupabaseStaticClient();
   if (!supabase) return FALLBACK_UPDATES;
   const { data, error } = await supabase
     .from("opening_updates")
