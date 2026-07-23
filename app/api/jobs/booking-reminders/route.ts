@@ -5,9 +5,11 @@ import { BookingReminderEmail } from "@/emails/booking-reminder";
 import type { Booking } from "@/types";
 
 /**
- * Sends reminder emails for confirmed bookings starting 20–28 hours
- * from now. Run hourly via Vercel Cron; the notifications table
- * tracks sent reminders so reruns never double-send.
+ * Sends reminder emails for confirmed bookings starting 12–36 hours
+ * from now — wide enough that a single daily run (Hobby-plan cron
+ * limit) covers every next-day booking. Safe to run hourly on Pro:
+ * the notifications table tracks sent reminders so overlapping
+ * windows never double-send.
  */
 export async function GET(request: Request) {
   const secret = process.env.CRON_SECRET;
@@ -21,8 +23,8 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: "Not configured" }, { status: 503 });
   }
 
-  const windowStart = new Date(Date.now() + 20 * 3_600_000).toISOString();
-  const windowEnd = new Date(Date.now() + 28 * 3_600_000).toISOString();
+  const windowStart = new Date(Date.now() + 12 * 3_600_000).toISOString();
+  const windowEnd = new Date(Date.now() + 36 * 3_600_000).toISOString();
 
   const { data: bookings } = await admin
     .from("bookings")

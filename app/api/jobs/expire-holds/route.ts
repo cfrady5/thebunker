@@ -3,8 +3,14 @@ import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 
 /**
  * Housekeeping job: expires stale checkout holds and abandoned
- * payment_pending bookings. Schedule every 5–10 minutes (Vercel
- * Cron). Protected by CRON_SECRET.
+ * payment_pending bookings. Protected by CRON_SECRET.
+ *
+ * Correctness does not depend on cron frequency: the availability
+ * engine ignores holds past their expires_at, the hold RPC expires
+ * stale rows inline, and Stripe's checkout.session.expired webhook
+ * releases abandoned payment_pending bookings. This job is backstop
+ * cleanup — daily is fine on the Hobby plan; every 10 minutes is
+ * nicer on Pro.
  */
 export async function GET(request: Request) {
   const secret = process.env.CRON_SECRET;

@@ -121,8 +121,12 @@ npm run format       # Prettier
 ## Deployment (Vercel)
 
 1. Import the repo into Vercel and set all environment variables.
-2. `vercel.json` schedules two cron jobs (send `Authorization: Bearer
-   $CRON_SECRET`): hold expiry every 10 minutes, booking reminders hourly.
+2. `vercel.json` schedules two daily cron jobs (send `Authorization: Bearer
+   $CRON_SECRET`): hold-expiry cleanup and booking reminders. Daily fits the
+   Hobby plan's cron limit; on Pro you can tighten them (e.g. `*/10 * * * *`
+   for hold cleanup, hourly for reminders) — correctness doesn't depend on
+   frequency since availability ignores expired holds in real time and the
+   reminder job is idempotent.
 3. Point the Stripe webhook at the production URL.
 4. Work through [`LAUNCH_CHECKLIST.md`](LAUNCH_CHECKLIST.md) before flipping
    `business_mode` to `reservations_open`.
