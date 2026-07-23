@@ -133,6 +133,8 @@ export interface Booking {
   currency: string;
   stripe_payment_intent_id: string | null;
   stripe_checkout_session_id: string | null;
+  square_order_id: string | null;
+  square_payment_id: string | null;
   notes: string | null;
   first_time_guest: boolean;
   club_rental_required: boolean;

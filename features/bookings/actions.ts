@@ -5,6 +5,12 @@ import { randomBytes } from "crypto";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { getStripe } from "@/lib/stripe/server";
+import {
+  createBookingPaymentLink,
+  createRefund,
+  isSquareConfigured,
+  SquareError,
+} from "@/lib/square/server";
 import { getSiteSettings, bookingIsOpen } from "@/lib/settings";
 import { getCurrentUser } from "@/lib/permissions";
 import { checkRateLimit } from "@/lib/rate-limit";
@@ -243,8 +249,7 @@ export async function startCheckout(raw: {
   }
   const booking = bookingData as Booking;
 
-  const stripe = getStripe();
-  if (!stripe) {
+  if (!isSquareConfigured()) {
     // Payments unconfigured (preview environments): keep the booking
     // payment_pending and tell the customer clearly.
     return {
@@ -256,40 +261,34 @@ export async function startCheckout(raw: {
   }
 
   const customerEmail = user?.profile.email ?? guestEmail ?? undefined;
-  const session = await stripe.checkout.sessions.create({
-    mode: "payment",
-    customer_email: customerEmail,
-    line_items: [
-      {
-        quantity: 1,
-        price_data: {
-          currency: "usd",
-          unit_amount: booking.total_cents,
-          product_data: {
-            name: `Simulator bay — ${formatFacility(booking.starts_at, "EEE, MMM d 'at' h:mm a")}`,
-            description: `${durationMinutes} minutes · up to ${details.data.player_count} players · Booking ${booking.booking_number}`,
-          },
-        },
-      },
-    ],
-    metadata: { booking_id: booking.id, booking_number: booking.booking_number },
-    payment_intent_data: {
-      metadata: { booking_id: booking.id, booking_number: booking.booking_number },
-    },
-    expires_at: Math.floor(Date.now() / 1000) + 30 * 60,
-    success_url: `${SITE_URL}/book/confirmation/${booking.id}?session_id={CHECKOUT_SESSION_ID}`,
-    cancel_url: `${SITE_URL}/book?cancelled=1`,
-  });
+  let link;
+  try {
+    link = await createBookingPaymentLink({
+      idempotencyKey: booking.id,
+      referenceId: booking.booking_number,
+      description: `Simulator bay — ${formatFacility(booking.starts_at, "EEE, MMM d 'at' h:mm a")} · ${durationMinutes} min · up to ${details.data.player_count} players`,
+      amountCents: booking.total_cents,
+      buyerEmail: customerEmail,
+      redirectUrl: `${SITE_URL}/book/confirmation/${booking.id}`,
+    });
+  } catch (err) {
+    console.error("Square payment link failed:", err instanceof SquareError ? err.detail : err);
+    return {
+      ok: false,
+      bookingId: booking.id,
+      message: "We couldn't start the payment. Please try again in a moment.",
+    };
+  }
 
   await admin
     .from("bookings")
-    .update({ stripe_checkout_session_id: session.id })
+    .update({ square_order_id: link.orderId })
     .eq("id", booking.id);
 
   return {
     ok: true,
     message: "Redirecting to secure payment…",
-    checkoutUrl: session.url ?? undefined,
+    checkoutUrl: link.url,
     bookingId: booking.id,
   };
 }
@@ -334,23 +333,27 @@ export async function cancelBooking(bookingId: string): Promise<CancelResult> {
     totalPaidCents: booking.total_cents,
   });
 
-  const stripe = getStripe();
   let refunded = false;
 
-  if (
-    assessment.beforeDeadline &&
-    booking.status === "confirmed" &&
-    booking.stripe_payment_intent_id &&
-    stripe
-  ) {
+  if (assessment.beforeDeadline && booking.status === "confirmed") {
     try {
-      await stripe.refunds.create({
-        payment_intent: booking.stripe_payment_intent_id,
-        reason: "requested_by_customer",
-      });
-      refunded = true;
+      if (booking.square_payment_id && isSquareConfigured()) {
+        await createRefund({
+          idempotencyKey: `cancel-${booking.id}`,
+          paymentId: booking.square_payment_id,
+          amountCents: booking.total_cents,
+          reason: "Customer cancellation within policy",
+        });
+        refunded = true;
+      } else if (booking.stripe_payment_intent_id && getStripe()) {
+        await getStripe()!.refunds.create({
+          payment_intent: booking.stripe_payment_intent_id,
+          reason: "requested_by_customer",
+        });
+        refunded = true;
+      }
     } catch (err) {
-      console.error("Stripe refund failed:", err);
+      console.error("refund failed:", err);
       return {
         ok: false,
         message:

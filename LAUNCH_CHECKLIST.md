@@ -42,14 +42,20 @@ in code/seed are marked below with where to change them.
 - [ ] **Terms of service** — `/policies/terms` page content
 - [ ] **Gift card expiration policy vs. Indiana law** — `/policies/terms`
 
-## Payments
+## Payments (Square)
 
-- [ ] Stripe account activated (business verification)
-- [ ] Live API keys in production env
-- [ ] Webhook endpoint created + `STRIPE_WEBHOOK_SECRET` set
-- [ ] Test booking end-to-end in live mode (small real charge, then refund)
-- [ ] Refund flow tested from admin
-- [ ] Apple Pay / Google Pay domain verification in Stripe
+- [ ] Sandbox env vars set in Vercel (`SQUARE_ACCESS_TOKEN`,
+      `SQUARE_ENVIRONMENT=sandbox`) and `/api/admin/square-status` returns OK
+- [ ] Webhook subscription created for `<site>/api/webhooks/square`
+      (payment.created/updated, refund.created/updated) +
+      `SQUARE_WEBHOOK_SIGNATURE_KEY` set
+- [ ] Sandbox test booking end-to-end (pay with Square test card, booking
+      flips to confirmed, order visible in Square Dashboard)
+- [ ] Refund flow tested from admin and from the Square Dashboard
+- [ ] Switch to production token + `SQUARE_ENVIRONMENT=production` at launch
+- [ ] Small live charge + refund verified
+- [ ] Membership billing decision: move subscriptions to Square Subscriptions
+      or keep Stripe Billing (currently optional legacy path)
 
 ## Email
 

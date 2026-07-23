@@ -5,6 +5,7 @@ import { z } from "zod";
 import { requireRole, type CurrentUser } from "@/lib/permissions";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { getStripe } from "@/lib/stripe/server";
+import { createRefund as createSquareRefund, isSquareConfigured } from "@/lib/square/server";
 import type { BusinessMode, StaffRole } from "@/types";
 
 export interface ActionResult {
@@ -170,23 +171,36 @@ export async function issueRefund(
     .single();
   if (!bookingRow) return { ok: false, message: "Booking not found." };
 
-  const booking = bookingRow as { stripe_payment_intent_id: string | null; status: string };
-  if (!booking.stripe_payment_intent_id) {
-    return { ok: false, message: "No payment on file for this booking." };
-  }
-
-  const stripe = getStripe();
-  if (!stripe) return { ok: false, message: "Stripe is not configured." };
+  const booking = bookingRow as {
+    stripe_payment_intent_id: string | null;
+    square_payment_id: string | null;
+    total_cents: number;
+    status: string;
+  };
 
   try {
-    await stripe.refunds.create({
-      payment_intent: booking.stripe_payment_intent_id,
-      reason: "requested_by_customer",
-      metadata: { staff_reason: reason.slice(0, 200) },
-    });
+    if (booking.square_payment_id && isSquareConfigured()) {
+      await createSquareRefund({
+        idempotencyKey: `staff-refund-${bookingId}`,
+        paymentId: booking.square_payment_id,
+        amountCents: booking.total_cents,
+        reason: reason.slice(0, 190) || "Staff refund",
+      });
+    } else if (booking.stripe_payment_intent_id && getStripe()) {
+      await getStripe()!.refunds.create({
+        payment_intent: booking.stripe_payment_intent_id,
+        reason: "requested_by_customer",
+        metadata: { staff_reason: reason.slice(0, 200) },
+      });
+    } else {
+      return { ok: false, message: "No payment on file for this booking." };
+    }
   } catch (err) {
     console.error("admin refund failed:", err);
-    return { ok: false, message: "Stripe refund failed — check the Stripe dashboard." };
+    return {
+      ok: false,
+      message: "Refund failed — check the Square dashboard and try again.",
+    };
   }
 
   await ctx.admin.from("bookings").update({ status: "refunded" }).eq("id", bookingId);

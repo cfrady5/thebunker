@@ -694,7 +694,7 @@ export function BookingFlow({
               </Button>
             </div>
             <p className="mt-3 text-right text-xs text-muted-foreground">
-              Secure payment by Stripe — cards, Apple Pay and Google Pay.
+              Secure checkout by Square — cards, Apple Pay and Google Pay.
             </p>
           </div>
         ) : null}

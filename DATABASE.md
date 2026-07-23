@@ -16,6 +16,7 @@ timestamps and Row Level Security on **every** table.
 | `0007_giftcards_waivers_content.sql`   | Gift cards, account credits, waivers, discounts, opening updates, interest list |
 | `0008_rpc.sql`                         | Hold/booking RPCs + cleanup function                       |
 | `0009_rls.sql`                         | All RLS policies                                           |
+| `0010_square.sql`                      | Square order/payment reference columns                     |
 
 `seed.sql` loads realistic development/staging content (clearly-marked
 placeholders tracked in LAUNCH_CHECKLIST.md).
@@ -51,11 +52,20 @@ Three layers guarantee a bay can never be double-booked:
    server from live data; the client never decides availability.
 
 Checkout flow: hold (8–10 min, visible countdown) → `convert_hold_to_booking`
-(RPC, `payment_pending`) → Stripe Checkout → **webhook** flips to `confirmed`.
+(RPC, `payment_pending`) → Square Checkout link → **webhook** flips to `confirmed`.
 `expire_stale_holds()` (cron) expires abandoned holds and payment-pending
 bookings so inventory is always released.
 
-## Webhook behavior (`/api/webhooks/stripe`)
+## Webhook behavior
+
+**Square (`/api/webhooks/square`) — primary.** HMAC-verified
+(`SQUARE_WEBHOOK_SIGNATURE_KEY`); `payment.updated` COMPLETED flips the
+matching booking (by `square_order_id`) from `payment_pending` to `confirmed`,
+records the payment and sends the confirmation email; `refund.updated`
+COMPLETED marks payments/bookings refunded — including refunds issued directly
+in the Square Dashboard.
+
+## Legacy Stripe webhook (`/api/webhooks/stripe`)
 
 - Signature-verified with `STRIPE_WEBHOOK_SECRET`; unverified requests are 400.
 - `checkout.session.completed` → booking `confirmed` (idempotent — only from

@@ -13,7 +13,7 @@ founded by Jay and Amanda.
   Stage, menu, private events, gift cards, about, FAQ, contact, policies and
   accessibility pages, all SEO-optimized with structured data.
 - **Booking engine** — server-computed availability, concurrency-safe checkout
-  holds (advisory locks + Postgres exclusion constraints), Stripe Checkout, and
+  holds (advisory locks + Postgres exclusion constraints), Square Checkout, and
   webhook-verified confirmation.
 - **Customer accounts** — Supabase Auth, dashboard, reservations with
   self-service cancellation/refund logic, membership view, credits, gift cards,
@@ -37,7 +37,7 @@ founded by Jay and Amanda.
 | Framework  | Next.js 15 (App Router) · React 19 · TypeScript (strict)         |
 | Styling    | Tailwind CSS · shadcn-style components · Radix primitives        |
 | Data       | Supabase (Postgres, Auth, RLS)                                   |
-| Payments   | Stripe Checkout · Stripe Billing · Customer Portal · webhooks    |
+| Payments   | Square (Checkout links, orders, refunds, webhooks) · Stripe (legacy membership billing) |
 | Email      | Resend + React Email                                             |
 | Validation | Zod (client + server re-validation)                              |
 | Dates      | date-fns + date-fns-tz (facility TZ: America/Indiana/Indianapolis) |
@@ -63,8 +63,8 @@ groups:
 
 - `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`,
   `SUPABASE_SERVICE_ROLE_KEY` — database + auth (service key is server-only).
-- `STRIPE_SECRET_KEY`, `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY`,
-  `STRIPE_WEBHOOK_SECRET` — payments.
+- `SQUARE_ACCESS_TOKEN`, `SQUARE_ENVIRONMENT`, `SQUARE_LOCATION_ID`,
+  `SQUARE_WEBHOOK_SIGNATURE_KEY` — payments + Square Dashboard integration.
 - `RESEND_API_KEY`, `EMAIL_FROM`, `STAFF_NOTIFICATIONS_EMAIL` — email.
 - `CRON_SECRET` — protects the scheduled job endpoints.
 
@@ -86,19 +86,29 @@ groups:
    select id, 'owner' from profiles where email = 'you@example.com';
    ```
 
-### Stripe setup
+### Square setup (payments + seller dashboard)
 
-1. Add the secret/publishable keys to `.env.local`.
-2. Create a webhook endpoint pointing at `/api/webhooks/stripe` subscribed to:
-   `checkout.session.completed`, `checkout.session.expired`,
-   `payment_intent.payment_failed`, `charge.refunded`,
-   `customer.subscription.*`.
-3. Put its signing secret in `STRIPE_WEBHOOK_SECRET`.
-4. For memberships, create Stripe Prices and store their IDs in
-   `membership_plans.stripe_price_id`.
+Square is the payment provider and the operational money dashboard: every
+reservation checkout creates a Square order whose line item carries the
+bay/date/time, so staff can track it all in the Square Dashboard.
 
-Payments are **never** trusted from client redirects — the webhook is the only
-thing that marks a booking confirmed.
+1. In [developer.squareup.com](https://developer.squareup.com), grab the access
+   token (sandbox to test, production to go live) and set `SQUARE_ACCESS_TOKEN`
+   and `SQUARE_ENVIRONMENT`. `SQUARE_LOCATION_ID` is optional (defaults to the
+   first active location).
+2. Create a webhook subscription pointing at `<site>/api/webhooks/square`,
+   subscribed to `payment.created`, `payment.updated`, `refund.created`,
+   `refund.updated`. Put its signature key in `SQUARE_WEBHOOK_SIGNATURE_KEY`.
+3. Verify from the site: owners can hit `/api/admin/square-status` to confirm
+   the token, environment and locations.
+
+Payments are **never** trusted from client redirects — the Square webhook is
+the only thing that marks a booking confirmed. Refunds issued from the site
+(customer self-service inside policy, or staff refunds) go through Square, and
+refunds issued directly in the Square Dashboard flow back via webhook.
+
+Stripe remains only as an optional legacy path for membership billing
+(`/api/billing-portal`) until membership subscriptions move to Square.
 
 ### Resend setup
 
@@ -127,7 +137,7 @@ npm run format       # Prettier
    for hold cleanup, hourly for reminders) — correctness doesn't depend on
    frequency since availability ignores expired holds in real time and the
    reminder job is idempotent.
-3. Point the Stripe webhook at the production URL.
+3. Point the Square webhook subscription at the production URL.
 4. Work through [`LAUNCH_CHECKLIST.md`](LAUNCH_CHECKLIST.md) before flipping
    `business_mode` to `reservations_open`.
 
