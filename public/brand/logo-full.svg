@@ -1,0 +1,63 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 280" role="img" aria-label="The Bunker Indoor Golf">
+  <defs>
+    <pattern id="tartan" width="28" height="28" patternUnits="userSpaceOnUse">
+      <rect width="28" height="28" fill="#123D2A"/>
+      <rect x="0" y="10" width="28" height="8" fill="#1D5137"/>
+      <rect x="10" y="0" width="8" height="28" fill="#1D5137"/>
+      <rect x="0" y="13" width="28" height="2" fill="#B58A3A" opacity="0.75"/>
+      <rect x="13" y="0" width="2" height="28" fill="#B58A3A" opacity="0.75"/>
+      <rect x="0" y="24" width="28" height="1.6" fill="#6D3470" opacity="0.7"/>
+      <rect x="24" y="0" width="1.6" height="28" fill="#6D3470" opacity="0.7"/>
+      <rect x="0" y="4" width="28" height="1" fill="#F5E8C8" opacity="0.28"/>
+      <rect x="4" y="0" width="1" height="28" fill="#F5E8C8" opacity="0.28"/>
+    </pattern>
+  </defs>
+
+  <!-- Shield -->
+  <path d="M120 12 L212 34 V138 C212 196 174 236 120 258 C66 236 28 196 28 138 V34 Z"
+        fill="url(#tartan)" stroke="#B58A3A" stroke-width="6"/>
+  <path d="M120 22 L202 42 V137 C202 189 168 226 120 247 C72 226 38 189 38 137 V42 Z"
+        fill="none" stroke="#F5E8C8" stroke-width="2" opacity="0.85"/>
+
+  <!-- Arc title -->
+  <path id="titleArc" d="M50 96 Q120 48 190 96" fill="none"/>
+  <text font-family="Georgia, 'Times New Roman', serif" font-size="30" font-weight="bold"
+        fill="#F5E8C8" letter-spacing="2" text-anchor="middle">
+    <textPath href="#titleArc" startOffset="50%">THE BUNKER</textPath>
+  </text>
+
+  <!-- Crossed clubs -->
+  <g stroke="#F5E8C8" stroke-width="6" stroke-linecap="round">
+    <line x1="78" y1="118" x2="156" y2="192"/>
+    <line x1="162" y1="118" x2="84" y2="192"/>
+  </g>
+  <path d="M156 192 q16 12 26 2 q-4 -14 -20 -10 z" fill="#B58A3A" stroke="#F5E8C8" stroke-width="2"/>
+  <path d="M84 192 q-16 12 -26 2 q4 -14 20 -10 z" fill="#B58A3A" stroke="#F5E8C8" stroke-width="2"/>
+
+  <!-- Golf ball -->
+  <circle cx="120" cy="146" r="17" fill="#FAF8F1" stroke="#B58A3A" stroke-width="3"/>
+  <g fill="#C7AE79">
+    <circle cx="114" cy="141" r="1.7"/><circle cx="121" cy="139" r="1.7"/><circle cx="128" cy="142" r="1.7"/>
+    <circle cx="112" cy="148" r="1.7"/><circle cx="120" cy="147" r="1.7"/><circle cx="127" cy="149" r="1.7"/>
+    <circle cx="116" cy="154" r="1.7"/><circle cx="124" cy="155" r="1.7"/>
+  </g>
+
+  <!-- Thistles -->
+  <g transform="translate(58 206)">
+    <path d="M0 22 V6" stroke="#1D5137" stroke-width="3"/>
+    <path d="M-6 4 Q0 -10 6 4 Z" fill="#6D3470"/>
+    <path d="M-6 5 Q0 12 6 5 Z" fill="#1D5137"/>
+  </g>
+  <g transform="translate(182 206)">
+    <path d="M0 22 V6" stroke="#1D5137" stroke-width="3"/>
+    <path d="M-6 4 Q0 -10 6 4 Z" fill="#6D3470"/>
+    <path d="M-6 5 Q0 12 6 5 Z" fill="#1D5137"/>
+  </g>
+
+  <!-- Banner -->
+  <g>
+    <path d="M44 228 L196 228 L206 244 L196 260 L44 260 L34 244 Z" fill="#F5E8C8" stroke="#B58A3A" stroke-width="3"/>
+    <text x="120" y="250" font-family="Georgia, serif" font-size="17" font-weight="bold"
+          fill="#123D2A" letter-spacing="4" text-anchor="middle">INDOOR GOLF</text>
+  </g>
+</svg>

@@ -1,0 +1,152 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/*
+  The Bunker design tokens.
+  Colors are stored as HSL channel triplets so Tailwind can apply
+  opacity modifiers (e.g. bg-primary/80).
+
+  Reference hex values (sampled from the brand logo):
+    Bunker Green   #123D2A   Deep Forest #09291D   Clubhouse #1D5137
+    Warm Cream     #F5E8C8   Parchment   #E8D3A5   Soft Ivory #FAF8F1
+    Antique Gold   #B58A3A   Brass       #8D6B2E
+    Thistle Purple #6D3470   Muted Purple #8C648D
+    Charcoal       #1C211E   Muted Charcoal #4A514C   Border Tan #C7AE79
+*/
+:root {
+  --background: 47 47% 96%; /* #FAF8F1 soft ivory */
+  --foreground: 140 8% 12%; /* #1C211E charcoal */
+
+  --brand-primary: 152 55% 15%; /* #123D2A bunker green */
+  --brand-primary-dark: 158 64% 10%; /* #09291D deep forest */
+  --brand-primary-light: 150 47% 22%; /* #1D5137 clubhouse green */
+  --brand-cream: 43 69% 87%; /* #F5E8C8 warm cream */
+  --brand-parchment: 41 60% 78%; /* #E8D3A5 parchment */
+  --brand-ivory: 47 47% 96%; /* #FAF8F1 */
+  --brand-gold: 39 51% 47%; /* #B58A3A antique gold */
+  --brand-brass: 39 51% 37%; /* #8D6B2E brass */
+  --brand-purple: 296 37% 32%; /* #6D3470 thistle */
+  --brand-purple-muted: 298 17% 47%; /* #8C648D */
+
+  --charcoal: 140 8% 12%; /* #1C211E */
+  --charcoal-muted: 137 5% 31%; /* #4A514C */
+
+  --surface: 40 100% 99%; /* #FFFDF8 warm white */
+  --surface-muted: 44 45% 93%; /* softened cream */
+  --border: 41 41% 63%; /* #C7AE79 border tan */
+  --input: 41 30% 74%;
+  --ring: 39 51% 47%;
+
+  --success: 148 47% 33%; /* #2D7B50 */
+  --warning: 33 65% 48%; /* #C7812C */
+  --danger: 3 45% 45%; /* #A8433E */
+
+  --radius: 0.625rem;
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  html {
+    scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-feature-settings:
+      "rlig" 1,
+      "calt" 1;
+  }
+  h1,
+  h2,
+  h3 {
+    @apply font-serif;
+    text-wrap: balance;
+  }
+  p {
+    text-wrap: pretty;
+  }
+  :focus-visible {
+    @apply outline-none ring-2 ring-gold ring-offset-2 ring-offset-background;
+  }
+}
+
+@layer components {
+  /* Restrained tartan accent — used in thin dividers and hero edges only. */
+  .tartan-band {
+    background-color: hsl(var(--brand-primary-dark));
+    background-image:
+      repeating-linear-gradient(
+        90deg,
+        transparent 0,
+        transparent 34px,
+        rgb(181 138 58 / 0.35) 34px,
+        rgb(181 138 58 / 0.35) 36px,
+        transparent 36px,
+        transparent 54px,
+        rgb(109 52 112 / 0.3) 54px,
+        rgb(109 52 112 / 0.3) 57px
+      ),
+      repeating-linear-gradient(
+        0deg,
+        transparent 0,
+        transparent 34px,
+        rgb(245 232 200 / 0.14) 34px,
+        rgb(245 232 200 / 0.14) 36px,
+        transparent 36px,
+        transparent 54px,
+        rgb(29 81 55 / 0.65) 54px,
+        rgb(29 81 55 / 0.65) 57px
+      );
+  }
+
+  .prose-policies h2 {
+    @apply mt-10 text-display-sm text-primary;
+  }
+  .prose-policies h3 {
+    @apply mt-6 text-xl text-primary;
+  }
+  .prose-policies p,
+  .prose-policies li {
+    @apply mt-3 leading-relaxed text-charcoal-muted;
+  }
+  .prose-policies ul {
+    @apply mt-3 list-disc pl-6;
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}
+
+/* Skip link — visually hidden until focused. */
+.skip-link {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  z-index: 100;
+}
+.skip-link:focus {
+  left: 1rem;
+  top: 1rem;
+  padding: 0.75rem 1.25rem;
+  background: hsl(var(--brand-primary));
+  color: hsl(var(--brand-cream));
+  border-radius: var(--radius);
+}

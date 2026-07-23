@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 280" role="img" aria-label="The Bunker Indoor Golf">
+  <path d="M120 12 L212 34 V138 C212 196 174 236 120 258 C66 236 28 196 28 138 V34 Z"
+        fill="none" stroke="#123D2A" stroke-width="7"/>
+  <g stroke="#123D2A" stroke-width="7" stroke-linecap="round">
+    <line x1="76" y1="86" x2="158" y2="178"/>
+    <line x1="164" y1="86" x2="82" y2="178"/>
+  </g>
+  <circle cx="120" cy="128" r="19" fill="none" stroke="#123D2A" stroke-width="5"/>
+  <text x="120" y="222" font-family="Georgia, serif" font-size="26" font-weight="bold"
+        fill="#123D2A" letter-spacing="2" text-anchor="middle">TB</text>
+</svg>
