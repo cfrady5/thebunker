@@ -36,10 +36,10 @@ export function EmailLayout({
             }}
           >
             <Img
-              src={`${SITE_URL}/brand/logo-full.svg`}
+              src={`${SITE_URL}/brand/bunker-primary-logo.png`}
               alt="The Bunker Indoor Golf"
-              width="96"
-              height="112"
+              width="110"
+              height="103"
               style={{ margin: "0 auto" }}
             />
           </Section>

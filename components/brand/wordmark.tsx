@@ -17,13 +17,13 @@ export function BrandWordmark({
   className?: string;
   priority?: boolean;
 }) {
-  const height = Math.round(width * (300 / 640));
+  const height = Math.round(width * (411 / 900));
   return (
     <Image
       src={
         tone === "white"
-          ? "/brand/bunker-wordmark-white.svg"
-          : "/brand/bunker-wordmark-black.svg"
+          ? "/brand/bunker-wordmark-white.png"
+          : "/brand/bunker-wordmark-black.png"
       }
       alt="The Bunker"
       width={width}

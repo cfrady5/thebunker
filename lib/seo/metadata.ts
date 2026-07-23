@@ -47,7 +47,7 @@ export function localBusinessJsonLd(params: {
     description:
       "Indoor golf simulators, lessons, leagues, youth programs and community events in Linton, Indiana.",
     url: SITE_URL,
-    image: `${SITE_URL}/brand/logo-full.svg`,
+    image: `${SITE_URL}/brand/bunker-primary-logo.png`,
     telephone: params.phone ?? undefined,
     address: {
       "@type": "PostalAddress",

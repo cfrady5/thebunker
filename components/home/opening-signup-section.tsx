@@ -14,10 +14,10 @@ export function OpeningSignupSection() {
       <div className="mx-auto grid max-w-[1400px] items-center gap-10 px-5 py-16 md:px-8 md:py-24 lg:grid-cols-[30fr_34fr_36fr] lg:gap-14 xl:px-16">
         <div className="hidden overflow-hidden rounded-md border border-border lg:block">
           <Image
-            src="/gallery/ball-hole.svg"
-            alt="A golf ball resting near the hole on the green"
-            width={480}
-            height={320}
+            src="/gallery/ball-hole.jpg"
+            alt="A golf ball rolling toward the hole on a putting green"
+            width={1200}
+            height={800}
             className="h-full max-h-[260px] w-full object-cover"
             sizes="(min-width: 1024px) 30vw, 0px"
           />

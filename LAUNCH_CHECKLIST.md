@@ -16,8 +16,12 @@ in code/seed are marked below with where to change them.
 
 - [ ] **Simulator brand & course count** — `site_settings.simulator` (currently unannounced)
 - [ ] **Final bay count and names** — `simulator_bays` (seeded with 4)
-- [ ] **Bay photos & facility photography** — replace icon placeholders on
-      homepage/simulators/private events; store in Supabase Storage or `/public`
+- [x] **Brand assets** — real crest + wordmark processed into `/public/brand`
+      (transparent PNG/WebP; sources in `/assets/source`)
+- [ ] **Facility photography** — homepage gallery currently uses interim stock
+      golf photos; replace with facility shoots (lounge, lessons, food, live
+      music, league nights) by adding files to `/public/gallery` and entries in
+      `lib/content/home.ts`
 - [ ] **Final bay pricing** — `pricing_rules` (seeded: $30 off-peak / $40–50 peak per hour)
 - [ ] **Tax rate confirmation** — `site_settings.booking_rules.tax_rate` (seeded 7%)
 - [ ] **Booking rules review** — buffers, cutoffs, hold length, cancellation window

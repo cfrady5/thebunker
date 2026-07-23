@@ -58,41 +58,34 @@ export interface GalleryImage {
 }
 
 /**
- * Placeholder art ships with the repo so the gallery works from day
- * one; swap each src for real photography (same filenames) as shoots
- * happen. Tracked in LAUNCH_CHECKLIST.md.
+ * Interim stock photography (crops from the two supplied source
+ * photos). As facility shoots happen — lounge, lessons, food, live
+ * music, league nights — add those images here with accurate alt
+ * text. Tracked in LAUNCH_CHECKLIST.md.
  */
 export const galleryImages: GalleryImage[] = [
   {
-    src: "/gallery/friends-food.svg",
-    alt: "Friends sharing food and drinks in the lounge after a round",
+    src: "/gallery/putting-stroke.jpg",
+    alt: "A golfer lining up a putt on the practice green",
   },
   {
-    src: "/gallery/youth-lesson.svg",
-    alt: "An instructor helping a young golfer with their swing",
+    src: "/gallery/teed-up.jpg",
+    alt: "A golf ball teed up at dusk, ready for a round",
   },
   {
-    src: "/gallery/burger-drink.svg",
-    alt: "A burger and cold drink from the kitchen",
+    src: "/gallery/putting-green.jpg",
+    alt: "Practice putts rolling toward the hole on the putting green",
   },
   {
-    src: "/gallery/highland-stage.svg",
-    alt: "Live acoustic music on the Highland Stage",
+    src: "/gallery/fairway-dusk.jpg",
+    alt: "Warm evening light across the turf",
   },
   {
-    src: "/gallery/simulator-lounge.svg",
-    alt: "A simulator bay with lounge seating and a course on screen",
+    src: "/gallery/cup-detail.jpg",
+    alt: "A close look at the cup on the putting green",
   },
   {
-    src: "/gallery/adult-lesson.svg",
-    alt: "A golfer reviewing swing data with an instructor",
-  },
-  {
-    src: "/gallery/league-night.svg",
-    alt: "A league team celebrating a good shot on league night",
-  },
-  {
-    src: "/gallery/putting-green.svg",
-    alt: "Practice putts rolling on the indoor putting green",
+    src: "/gallery/ball-detail.jpg",
+    alt: "A golf ball balanced on its tee in the evening light",
   },
 ];
