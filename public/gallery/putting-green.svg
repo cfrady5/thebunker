@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 600" role="img" aria-label="Putting green">
+  <rect width="480" height="600" fill="#0B3326"/>
+  <rect width="480" height="600" fill="url(#v-putting-green)"/>
+  <defs>
+    <radialGradient id="v-putting-green" cx="0.5" cy="0.42" r="0.9">
+      <stop offset="0" stop-color="#0F4030"/>
+      <stop offset="1" stop-color="#052419"/>
+    </radialGradient>
+  </defs>
+  <rect x="14" y="14" width="452" height="572" fill="none" stroke="#C9A46A" stroke-opacity="0.35" stroke-width="2"/>
+  <g opacity="0.9"><path d="M130 400 h220" stroke="#C9A46A" stroke-width="4"/><circle cx="180" cy="388" r="12" fill="none" stroke="#C9A46A" stroke-width="4"/><path d="M330 400 v-160 l60 22 -60 22" stroke="#C9A46A" stroke-width="4" fill="none"/></g>
+  <text x="240" y="540" text-anchor="middle" font-family="Georgia,serif" font-size="21"
+        fill="#DED7CB" letter-spacing="3">PUTTING GREEN</text>
+</svg>

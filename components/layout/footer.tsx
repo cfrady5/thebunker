@@ -1,40 +1,21 @@
 import Link from "next/link";
+import { Facebook, Instagram, Mail } from "lucide-react";
 import { getSiteSettings } from "@/lib/settings";
-import { Logo } from "@/components/brand/logo";
-import { TartanDivider } from "@/components/brand/tartan-divider";
-import { NewsletterForm } from "@/components/marketing/newsletter-form";
+import { BrandWordmark } from "@/components/brand/wordmark";
+import { homeCopy } from "@/lib/content/home";
 
-const footerNav = [
-  {
-    heading: "Golf",
-    links: [
-      { href: "/simulators", label: "Simulator Experience" },
-      { href: "/pricing", label: "Pricing" },
-      { href: "/lessons", label: "Lessons" },
-      { href: "/memberships", label: "Memberships" },
-      { href: "/leagues", label: "Leagues" },
-    ],
-  },
-  {
-    heading: "Visit",
-    links: [
-      { href: "/events", label: "Events" },
-      { href: "/highland-stage", label: "Highland Stage" },
-      { href: "/menu", label: "Food & Drinks" },
-      { href: "/private-events", label: "Private Events" },
-      { href: "/gift-cards", label: "Gift Cards" },
-    ],
-  },
-  {
-    heading: "The Bunker",
-    links: [
-      { href: "/about", label: "About" },
-      { href: "/opening-updates", label: "Opening Updates" },
-      { href: "/faq", label: "FAQ" },
-      { href: "/contact", label: "Contact" },
-      { href: "/accessibility", label: "Accessibility" },
-    ],
-  },
+const menuLinks = [
+  { href: "/book", label: "Reservations" },
+  { href: "/menu", label: "Menu" },
+  { href: "/leagues", label: "Leagues" },
+  { href: "/about", label: "About" },
+];
+
+const infoLinks = [
+  { href: "/faq", label: "FAQ" },
+  { href: "/policies/privacy", label: "Privacy Policy" },
+  { href: "/policies/terms", label: "Terms of Service" },
+  { href: "/accessibility", label: "Accessibility" },
 ];
 
 export async function SiteFooter() {
@@ -43,67 +24,121 @@ export async function SiteFooter() {
 
   return (
     <footer className="bg-primary-dark text-cream">
-      <TartanDivider />
-      <div className="container grid gap-10 py-12 lg:grid-cols-12 lg:gap-8">
-        <div className="lg:col-span-4">
-          <Logo variant="cream" width={90} height={105} />
-          <p className="mt-4 max-w-xs text-sm leading-relaxed text-cream/80">
-            A year-round place to play, learn, compete and connect — indoor golf,
-            lessons, leagues and community events in Linton, Indiana.
-          </p>
-          <p className="mt-4 text-sm font-semibold text-gold">
-            Coming {settings.opening_label}
-          </p>
-        </div>
-
-        {footerNav.map((col) => (
-          <nav key={col.heading} aria-label={col.heading} className="lg:col-span-2">
-            <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-gold">
-              {col.heading}
+      <div className="mx-auto max-w-[1400px] px-5 py-16 md:px-8 xl:px-16">
+        <div className="grid gap-12 lg:grid-cols-12">
+          <div className="lg:col-span-4">
+            <BrandWordmark width={180} />
+            <p className="mt-5 max-w-xs text-[15px] leading-relaxed text-cream/70">
+              {homeCopy.footer.statement}
             </p>
-            <ul className="space-y-2">
-              {col.links.map((link) => (
-                <li key={link.href}>
-                  <Link
-                    href={link.href}
-                    className="text-sm text-cream/80 transition-colors hover:text-cream"
-                  >
-                    {link.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </nav>
-        ))}
-
-        <div className="lg:col-span-2">
-          <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-gold">
-            Stay in the loop
-          </p>
-          <NewsletterForm compact />
-        </div>
-      </div>
-
-      <div className="border-t border-cream/10">
-        <div className="container flex flex-col items-start justify-between gap-3 py-6 text-xs text-cream/60 sm:flex-row sm:items-center">
-          <p>
-            © {year} {settings.facility.name}. All rights reserved. ·{" "}
-            {settings.facility.city}, {settings.facility.state}
-          </p>
-          <div className="flex flex-wrap gap-4">
-            <Link href="/policies/privacy" className="hover:text-cream">
-              Privacy
-            </Link>
-            <Link href="/policies/terms" className="hover:text-cream">
-              Terms
-            </Link>
-            <Link href="/policies/cancellation" className="hover:text-cream">
-              Cancellation Policy
-            </Link>
-            <Link href="/policies/waiver" className="hover:text-cream">
-              Waiver
-            </Link>
+            <div className="mt-6 flex gap-3">
+              {settings.social.facebook ? (
+                <a
+                  href={settings.social.facebook}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="The Bunker on Facebook"
+                  className="flex h-11 w-11 items-center justify-center rounded-full border border-cream/20 text-cream/80 transition-colors hover:border-gold hover:text-gold"
+                >
+                  <Facebook aria-hidden className="h-5 w-5" />
+                </a>
+              ) : null}
+              {settings.social.instagram ? (
+                <a
+                  href={settings.social.instagram}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="The Bunker on Instagram"
+                  className="flex h-11 w-11 items-center justify-center rounded-full border border-cream/20 text-cream/80 transition-colors hover:border-gold hover:text-gold"
+                >
+                  <Instagram aria-hidden className="h-5 w-5" />
+                </a>
+              ) : null}
+              {settings.facility.email ? (
+                <a
+                  href={`mailto:${settings.facility.email}`}
+                  aria-label="Email The Bunker"
+                  className="flex h-11 w-11 items-center justify-center rounded-full border border-cream/20 text-cream/80 transition-colors hover:border-gold hover:text-gold"
+                >
+                  <Mail aria-hidden className="h-5 w-5" />
+                </a>
+              ) : null}
+            </div>
           </div>
+
+          <div className="grid grid-cols-2 gap-10 sm:grid-cols-3 lg:col-span-8 lg:grid-cols-5">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-gold">
+                Location
+              </p>
+              <p className="mt-4 text-[15px] leading-relaxed text-cream/75">
+                {settings.facility.address_line1 ? (
+                  <>
+                    {settings.facility.address_line1}
+                    <br />
+                  </>
+                ) : null}
+                {settings.facility.city}, {settings.facility.state}
+              </p>
+            </div>
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-gold">
+                Contact
+              </p>
+              <ul className="mt-4 space-y-2 text-[15px] text-cream/75">
+                <li className="break-all">
+                  {settings.facility.email ?? "Email coming soon"}
+                </li>
+                <li>{settings.facility.phone ?? "Phone coming soon"}</li>
+              </ul>
+            </div>
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-gold">
+                Hours
+              </p>
+              <p className="mt-4 text-[15px] text-cream/75">
+                Coming {settings.opening_label}
+              </p>
+            </div>
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-gold">
+                Menu
+              </p>
+              <ul className="mt-4 space-y-2">
+                {menuLinks.map((link) => (
+                  <li key={link.href}>
+                    <Link
+                      href={link.href}
+                      className="text-[15px] text-cream/75 transition-colors hover:text-cream"
+                    >
+                      {link.label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-gold">
+                Info
+              </p>
+              <ul className="mt-4 space-y-2">
+                {infoLinks.map((link) => (
+                  <li key={link.href}>
+                    <Link
+                      href={link.href}
+                      className="text-[15px] text-cream/75 transition-colors hover:text-cream"
+                    >
+                      {link.label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <div className="mt-14 border-t border-cream/10 pt-6 text-sm text-cream/50">
+          © {year} {settings.facility.name}. All rights reserved.
         </div>
       </div>
     </footer>

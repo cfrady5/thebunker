@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 600" role="img" aria-label="Lessons &amp; coaching">
+  <rect width="480" height="600" fill="#0B3326"/>
+  <rect width="480" height="600" fill="url(#v-adult-lesson)"/>
+  <defs>
+    <radialGradient id="v-adult-lesson" cx="0.5" cy="0.42" r="0.9">
+      <stop offset="0" stop-color="#0F4030"/>
+      <stop offset="1" stop-color="#052419"/>
+    </radialGradient>
+  </defs>
+  <rect x="14" y="14" width="452" height="572" fill="none" stroke="#C9A46A" stroke-opacity="0.35" stroke-width="2"/>
+  <g opacity="0.9"><path d="M170 430 Q240 180 330 210" stroke="#C9A46A" stroke-width="4" fill="none" stroke-dasharray="2 12" stroke-linecap="round"/><circle cx="170" cy="430" r="12" fill="none" stroke="#C9A46A" stroke-width="4"/></g>
+  <text x="240" y="540" text-anchor="middle" font-family="Georgia,serif" font-size="21"
+        fill="#DED7CB" letter-spacing="3">LESSONS &amp; COACHING</text>
+</svg>

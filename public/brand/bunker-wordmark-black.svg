@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 300" role="img" aria-label="The Bunker">
+  <defs>
+    <path id="wm-arc-b" d="M40 235 Q320 150 600 235" fill="none"/>
+  </defs>
+  <text x="320" y="105" text-anchor="middle"
+        font-family="'Brush Script MT','Segoe Script','Snell Roundhand',cursive"
+        font-size="92" font-style="italic" font-weight="bold" fill="#111111">The</text>
+  <text font-family="Georgia,'Times New Roman',serif" font-size="140" font-weight="bold"
+        fill="#111111" letter-spacing="-4">
+    <textPath href="#wm-arc-b" startOffset="50%" text-anchor="middle">Bunker</textPath>
+  </text>
+</svg>

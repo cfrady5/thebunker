@@ -15,34 +15,34 @@
     Charcoal       #1C211E   Muted Charcoal #4A514C   Border Tan #C7AE79
 */
 :root {
-  --background: 47 47% 96%; /* #FAF8F1 soft ivory */
-  --foreground: 140 8% 12%; /* #1C211E charcoal */
+  --background: 38 38% 94%; /* #F6F2EB warm cream */
+  --foreground: 0 0% 7%; /* #111111 */
 
-  --brand-primary: 152 55% 15%; /* #123D2A bunker green */
-  --brand-primary-dark: 158 64% 10%; /* #09291D deep forest */
-  --brand-primary-light: 150 47% 22%; /* #1D5137 clubhouse green */
-  --brand-cream: 43 69% 87%; /* #F5E8C8 warm cream */
-  --brand-parchment: 41 60% 78%; /* #E8D3A5 parchment */
-  --brand-ivory: 47 47% 96%; /* #FAF8F1 */
-  --brand-gold: 39 51% 47%; /* #B58A3A antique gold */
-  --brand-brass: 39 51% 37%; /* #8D6B2E brass */
+  --brand-primary: 159 70% 11%; /* #082E21 primary dark green */
+  --brand-primary-dark: 159 76% 8%; /* #052419 very dark green */
+  --brand-primary-light: 160 65% 12%; /* #0B3326 alternate deep green */
+  --brand-cream: 38 38% 94%; /* #F6F2EB warm cream */
+  --brand-parchment: 38 22% 83%; /* #DED7CB */
+  --brand-ivory: 40 43% 97%; /* #FBF9F5 soft ivory */
+  --brand-gold: 37 47% 60%; /* #C9A46A gold */
+  --brand-brass: 36 50% 44%; /* #A77B37 dark gold */
   --brand-purple: 296 37% 32%; /* #6D3470 thistle */
   --brand-purple-muted: 298 17% 47%; /* #8C648D */
 
-  --charcoal: 140 8% 12%; /* #1C211E */
-  --charcoal-muted: 137 5% 31%; /* #4A514C */
+  --charcoal: 0 0% 7%; /* #111111 */
+  --charcoal-muted: 37 4% 35%; /* #5E5B56 muted text */
 
-  --surface: 40 100% 99%; /* #FFFDF8 warm white */
-  --surface-muted: 44 45% 93%; /* softened cream */
-  --border: 41 41% 63%; /* #C7AE79 border tan */
-  --input: 41 30% 74%;
-  --ring: 39 51% 47%;
+  --surface: 0 0% 100%; /* #FFFFFF */
+  --surface-muted: 40 43% 97%; /* #FBF9F5 soft ivory */
+  --border: 38 22% 83%; /* #DED7CB */
+  --input: 38 22% 78%;
+  --ring: 37 47% 60%;
 
   --success: 148 47% 33%; /* #2D7B50 */
   --warning: 33 65% 48%; /* #C7812C */
   --danger: 3 45% 45%; /* #A8433E */
 
-  --radius: 0.625rem;
+  --radius: 0.375rem;
 }
 
 @layer base {

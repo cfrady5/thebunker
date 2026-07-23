@@ -1,24 +1,34 @@
 import { expect, test } from "@playwright/test";
 
 test.describe("public site", () => {
-  test("homepage renders the brand experience", async ({ page }) => {
+  test("homepage renders the approved design", async ({ page }) => {
     await page.goto("/");
     await expect(
-      page.getByRole("heading", { name: /golf without an offseason/i }),
+      page.getByRole("heading", { name: /indoor golf\.\s*real connections\./i }),
     ).toBeVisible();
     await expect(page.getByText(/linton, indiana/i).first()).toBeVisible();
-    // Value props
+    // Value pillars
     await expect(page.getByRole("heading", { name: "Play", exact: true })).toBeVisible();
     await expect(
-      page.getByRole("heading", { name: "Compete", exact: true }),
+      page.getByRole("heading", { name: "Connect", exact: true }),
+    ).toBeVisible();
+    // Gallery + signup band
+    await expect(
+      page.getByRole("heading", { name: /where golf brings people together/i }),
+    ).toBeVisible();
+    await expect(
+      page.getByRole("region", { name: /photo gallery/i }),
     ).toBeVisible();
   });
 
-  test("navigation reaches pricing", async ({ page }) => {
+  test("navigation reaches leagues", async ({ page }) => {
     await page.goto("/");
-    await page.getByRole("link", { name: "Pricing" }).first().click();
+    await page
+      .getByRole("navigation", { name: /main navigation/i })
+      .getByRole("link", { name: "Leagues" })
+      .click();
     await expect(
-      page.getByRole("heading", { name: /simple, per-bay pricing/i }),
+      page.getByRole("heading", { name: /find your league/i }),
     ).toBeVisible();
   });
 
@@ -53,14 +63,12 @@ test.describe("public site", () => {
     await expect(page.getByLabel(/email/i).first()).toBeVisible();
   });
 
-  test("opening list form validates required consent", async ({ page }) => {
+  test("opening list form validates email", async ({ page }) => {
     await page.goto("/");
     const section = page.locator("#opening-list");
     await section.scrollIntoViewIfNeeded();
-    await section.getByLabel(/first name/i).fill("Test");
-    await section.getByLabel(/last name/i).fill("Golfer");
-    await section.getByLabel(/^email$/i).fill("test@example.com");
-    await section.getByRole("button", { name: /join the opening list/i }).click();
+    await section.getByLabel(/email address/i).fill("not-an-email");
+    await section.getByRole("button", { name: /join the list/i }).click();
     await expect(section.getByRole("alert").first()).toBeVisible();
   });
 

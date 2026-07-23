@@ -19,9 +19,9 @@ insert into public.site_settings (key, value) values
     "timezone": "America/Indiana/Indianapolis"
   }'),
   ('hero', '{
-    "eyebrow": "Coming to Linton, Indiana · Fall 2026",
-    "headline": "Golf Without an Offseason.",
-    "subheadline": "The Bunker brings state-of-the-art indoor golf, lessons, leagues, tournaments, youth programs and community events together in one welcoming Linton destination."
+    "eyebrow": "Coming to Linton, Indiana",
+    "headline": "Indoor Golf.\nReal Connections.",
+    "subheadline": "State-of-the-art simulators, leagues, lessons, good food and a place for our community to play, compete and connect—year-round."
   }'),
   ('simulator', '{
     "brand": null,
