@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Fraunces, Inter } from "next/font/google";
 import { SITE_NAME, SITE_URL } from "@/lib/seo/metadata";
+import { GoogleAnalytics } from "@/lib/analytics/gtag";
 import "./globals.css";
 
 const fraunces = Fraunces({
@@ -39,6 +40,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           Skip to main content
         </a>
         {children}
+        <GoogleAnalytics />
       </body>
     </html>
   );

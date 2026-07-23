@@ -7,6 +7,9 @@ import { SiteFooter } from "@/components/layout/footer";
 import { AccountNav } from "@/components/account/account-nav";
 import { InlineAlert } from "@/components/feedback/inline-alert";
 
+// Account pages are always personalized — never statically prerender.
+export const dynamic = "force-dynamic";
+
 export default async function AccountLayout({
   children,
 }: {

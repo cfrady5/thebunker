@@ -23,7 +23,6 @@ import {
   getMenu,
   getMembershipPlans,
   getOpeningUpdates,
-  getPublishedEvents,
 } from "@/features/content/queries";
 import { buildMetadata, localBusinessJsonLd } from "@/lib/seo/metadata";
 import { Button } from "@/components/ui/button";
@@ -33,8 +32,6 @@ import { Logo } from "@/components/brand/logo";
 import { TartanDivider } from "@/components/brand/tartan-divider";
 import { SectionHeading } from "@/components/marketing/section-heading";
 import { LeagueCard } from "@/components/marketing/program-card";
-import { EventCard } from "@/components/marketing/event-card";
-import { MenuItemCard } from "@/components/marketing/menu-item-card";
 import { NewsletterForm } from "@/components/marketing/newsletter-form";
 import { formatCents, formatDuration } from "@/lib/utils";
 import { formatFacility } from "@/lib/dates";
@@ -111,10 +108,9 @@ const timeline = [
 ];
 
 export default async function HomePage() {
-  const [settings, leagues, events, menu, plans, updates] = await Promise.all([
+  const [settings, leagues, menu, plans, updates] = await Promise.all([
     getSiteSettings(),
     getLeagues(),
-    getPublishedEvents(),
     getMenu(),
     getMembershipPlans(),
     getOpeningUpdates(),
@@ -122,7 +118,6 @@ export default async function HomePage() {
 
   const canBook = bookingIsOpen(settings.business_mode);
   const featuredLeagues = leagues.slice(0, 6);
-  const featuredEvents = events.slice(0, 3);
   const featuredMenuItems = menu.items.filter((i) => i.featured).slice(0, 4);
   const latestUpdate = updates[0];
 

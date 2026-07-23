@@ -11,6 +11,9 @@ export const metadata = {
   robots: { index: false, follow: false },
 };
 
+// Admin pages are always role-gated and live — never statically prerender.
+export const dynamic = "force-dynamic";
+
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   if (!isSupabaseConfigured()) {
     return (
