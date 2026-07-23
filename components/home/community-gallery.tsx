@@ -116,13 +116,13 @@ export function CommunityGallery({
             {images.map((image) => (
               <div
                 key={image.src}
-                className="w-[72%] shrink-0 snap-center overflow-hidden rounded-md border border-gold/25 sm:w-[45%] md:w-[30%] lg:w-[19%] lg:snap-start"
+                className="aspect-square w-[72%] shrink-0 snap-center overflow-hidden rounded-md border border-gold/25 sm:w-[45%] md:w-[30%] lg:w-[19%] lg:snap-start"
               >
                 <Image
                   src={image.src}
                   alt={image.alt}
                   width={480}
-                  height={600}
+                  height={480}
                   className="h-full w-full select-none object-cover"
                   draggable={false}
                   sizes="(max-width: 640px) 72vw, (max-width: 1024px) 30vw, 19vw"

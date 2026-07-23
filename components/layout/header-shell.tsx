@@ -68,7 +68,7 @@ export function HeaderShell({
                 href={link.href}
                 aria-current={active ? "page" : undefined}
                 className={cn(
-                  "relative text-[15px] font-medium tracking-wide transition-colors after:absolute after:-bottom-1.5 after:left-0 after:h-px after:bg-gold after:transition-all after:duration-200",
+                  "relative text-[13px] font-semibold uppercase tracking-[0.14em] transition-colors after:absolute after:-bottom-1.5 after:left-0 after:h-px after:bg-gold after:transition-all after:duration-200",
                   active
                     ? "text-cream after:w-full"
                     : "text-cream/75 after:w-0 hover:text-cream hover:after:w-full",
@@ -83,7 +83,7 @@ export function HeaderShell({
         <div className="flex items-center gap-3">
           <Link
             href={accountHref}
-            className="hidden items-center rounded-md border border-gold/60 px-5 py-2.5 text-sm font-medium text-cream transition-colors hover:border-gold hover:bg-gold/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold lg:inline-flex"
+            className="hidden items-center rounded-md border border-gold/70 px-5 py-2.5 text-[13px] font-semibold uppercase tracking-[0.14em] text-gold transition-colors hover:border-gold hover:bg-gold/10 hover:text-cream focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold lg:inline-flex"
           >
             {accountLabel}
           </Link>

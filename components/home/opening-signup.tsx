@@ -56,7 +56,7 @@ export function OpeningSignupForm() {
         aria-hidden="true"
         className="absolute left-[-9999px] h-0 w-0 opacity-0"
       />
-      <div className="flex flex-col gap-3 sm:flex-row">
+      <div className="flex flex-col gap-3 sm:flex-row sm:gap-0">
         <div className="flex-1">
           <label htmlFor="opening-email" className="sr-only">
             Email address
@@ -71,13 +71,13 @@ export function OpeningSignupForm() {
             placeholder={homeCopy.signup.placeholder}
             aria-invalid={Boolean(error)}
             aria-describedby={error ? "opening-email-error" : undefined}
-            className="h-[52px] w-full rounded-md border border-border bg-surface px-4 text-[15px] text-charcoal placeholder:text-charcoal-muted/70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold"
+            className="h-[52px] w-full rounded-md border border-border bg-surface px-4 text-[15px] text-charcoal placeholder:text-charcoal-muted/70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold sm:rounded-r-none sm:border-r-0"
           />
         </div>
         <button
           type="submit"
           disabled={pending}
-          className="inline-flex h-[52px] shrink-0 items-center justify-center gap-2 rounded-md bg-primary px-7 text-sm font-semibold uppercase tracking-wider text-cream transition-colors hover:bg-primary-light focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2 disabled:opacity-60 sm:w-auto"
+          className="inline-flex h-[52px] shrink-0 items-center justify-center gap-2 rounded-md bg-primary px-7 text-sm font-semibold uppercase tracking-wider text-cream transition-colors hover:bg-primary-light focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2 disabled:opacity-60 sm:w-auto sm:rounded-l-none"
         >
           {pending ? (
             <>

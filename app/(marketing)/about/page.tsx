@@ -91,9 +91,12 @@ export default async function AboutPage() {
               </div>
             ))}
           </div>
-          <div className="mt-12 text-center">
+          <div className="mt-12 flex flex-wrap justify-center gap-3">
             <Button asChild size="lg">
               <Link href="/#opening-list">Follow the Journey</Link>
+            </Button>
+            <Button asChild size="lg" variant="outline">
+              <Link href="/simulators">See the Simulator Experience</Link>
             </Button>
           </div>
         </div>

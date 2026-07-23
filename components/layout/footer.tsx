@@ -15,6 +15,8 @@ const infoLinks = [
   { href: "/faq", label: "FAQ" },
   { href: "/policies/privacy", label: "Privacy Policy" },
   { href: "/policies/terms", label: "Terms of Service" },
+  { href: "/policies/cancellation", label: "Cancellation Policy" },
+  { href: "/policies/waiver", label: "Waiver" },
   { href: "/accessibility", label: "Accessibility" },
 ];
 
