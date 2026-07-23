@@ -1,63 +1,86 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 280" role="img" aria-label="The Bunker Indoor Golf">
   <defs>
-    <pattern id="tartan" width="28" height="28" patternUnits="userSpaceOnUse">
-      <rect width="28" height="28" fill="#123D2A"/>
-      <rect x="0" y="10" width="28" height="8" fill="#1D5137"/>
-      <rect x="10" y="0" width="8" height="28" fill="#1D5137"/>
-      <rect x="0" y="13" width="28" height="2" fill="#B58A3A" opacity="0.75"/>
-      <rect x="13" y="0" width="2" height="28" fill="#B58A3A" opacity="0.75"/>
-      <rect x="0" y="24" width="28" height="1.6" fill="#6D3470" opacity="0.7"/>
-      <rect x="24" y="0" width="1.6" height="28" fill="#6D3470" opacity="0.7"/>
-      <rect x="0" y="4" width="28" height="1" fill="#F5E8C8" opacity="0.28"/>
-      <rect x="4" y="0" width="1" height="28" fill="#F5E8C8" opacity="0.28"/>
+    <!-- Green-and-cream tartan inspired by the brand artwork -->
+    <pattern id="tartan" width="40" height="40" patternUnits="userSpaceOnUse">
+      <rect width="40" height="40" fill="#31603B"/>
+      <rect x="0" y="13" width="40" height="14" fill="#234B2D"/>
+      <rect x="13" y="0" width="14" height="40" fill="#234B2D"/>
+      <rect x="0" y="2" width="40" height="4" fill="#E4D3A4" opacity="0.85"/>
+      <rect x="2" y="0" width="4" height="40" fill="#E4D3A4" opacity="0.85"/>
+      <rect x="0" y="8" width="40" height="2" fill="#E4D3A4" opacity="0.55"/>
+      <rect x="8" y="0" width="2" height="40" fill="#E4D3A4" opacity="0.55"/>
+      <rect x="0" y="19" width="40" height="2" fill="#C89B3C" opacity="0.9"/>
+      <rect x="19" y="0" width="2" height="40" fill="#C89B3C" opacity="0.9"/>
+      <rect x="0" y="31" width="40" height="3" fill="#173420" opacity="0.8"/>
+      <rect x="31" y="0" width="3" height="40" fill="#173420" opacity="0.8"/>
     </pattern>
+    <linearGradient id="woodShaft" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#9C6431"/>
+      <stop offset="1" stop-color="#6E4318"/>
+    </linearGradient>
   </defs>
 
-  <!-- Shield -->
-  <path d="M120 12 L212 34 V138 C212 196 174 236 120 258 C66 236 28 196 28 138 V34 Z"
-        fill="url(#tartan)" stroke="#B58A3A" stroke-width="6"/>
-  <path d="M120 22 L202 42 V137 C202 189 168 226 120 247 C72 226 38 189 38 137 V42 Z"
-        fill="none" stroke="#F5E8C8" stroke-width="2" opacity="0.85"/>
+  <!-- Shield: arched top, heraldic point bottom, dark edge + gold border -->
+  <path d="M120 10 C158 10 196 20 216 36 L211 168 C207 212 172 246 120 268 C68 246 33 212 29 168 L24 36 C44 20 82 10 120 10 Z"
+        fill="#173420"/>
+  <path d="M120 15 C156 15 192 24 210 39 L205 166 C201 208 168 240 120 261 C72 240 39 208 35 166 L30 39 C48 24 84 15 120 15 Z"
+        fill="#C89B3C"/>
+  <path d="M120 21 C154 21 186 29 203 42 L198 164 C194 203 164 233 120 253 C76 233 46 203 42 164 L37 42 C54 29 86 21 120 21 Z"
+        fill="url(#tartan)"/>
 
-  <!-- Arc title -->
-  <path id="titleArc" d="M50 96 Q120 48 190 96" fill="none"/>
-  <text font-family="Georgia, 'Times New Roman', serif" font-size="30" font-weight="bold"
-        fill="#F5E8C8" letter-spacing="2" text-anchor="middle">
-    <textPath href="#titleArc" startOffset="50%">THE BUNKER</textPath>
-  </text>
-
-  <!-- Crossed clubs -->
-  <g stroke="#F5E8C8" stroke-width="6" stroke-linecap="round">
-    <line x1="78" y1="118" x2="156" y2="192"/>
-    <line x1="162" y1="118" x2="84" y2="192"/>
+  <!-- Crossed hickory clubs (heads up, shafts crossing behind wordmark) -->
+  <g>
+    <!-- left club: head upper-left, grip lower-right -->
+    <line x1="66" y1="72" x2="168" y2="196" stroke="#7A4E22" stroke-width="7" stroke-linecap="round"/>
+    <line x1="66" y1="72" x2="168" y2="196" stroke="#A06A33" stroke-width="3" stroke-linecap="round"/>
+    <ellipse cx="60" cy="66" rx="14" ry="9.5" fill="#8B5A2B" stroke="#3E2712" stroke-width="2"
+             transform="rotate(-38 60 66)"/>
+    <!-- right club: head upper-right, grip lower-left -->
+    <line x1="174" y1="72" x2="72" y2="196" stroke="#7A4E22" stroke-width="7" stroke-linecap="round"/>
+    <line x1="174" y1="72" x2="72" y2="196" stroke="#A06A33" stroke-width="3" stroke-linecap="round"/>
+    <ellipse cx="180" cy="66" rx="14" ry="9.5" fill="#8B5A2B" stroke="#3E2712" stroke-width="2"
+             transform="rotate(38 180 66)"/>
   </g>
-  <path d="M156 192 q16 12 26 2 q-4 -14 -20 -10 z" fill="#B58A3A" stroke="#F5E8C8" stroke-width="2"/>
-  <path d="M84 192 q-16 12 -26 2 q4 -14 20 -10 z" fill="#B58A3A" stroke="#F5E8C8" stroke-width="2"/>
+
+  <!-- Wordmark -->
+  <text x="120" y="103" text-anchor="middle" font-family="'Brush Script MT','Segoe Script',cursive"
+        font-size="34" font-style="italic" fill="#FAF6E8" stroke="#173420" stroke-width="0.8"
+        paint-order="stroke">The</text>
+  <text x="120" y="160" text-anchor="middle" font-family="Georgia,'Times New Roman',serif"
+        font-size="55" font-weight="bold" fill="#EFDFAE" stroke="#2B2013" stroke-width="2.4"
+        paint-order="stroke" letter-spacing="-1">Bunker</text>
 
   <!-- Golf ball -->
-  <circle cx="120" cy="146" r="17" fill="#FAF8F1" stroke="#B58A3A" stroke-width="3"/>
-  <g fill="#C7AE79">
-    <circle cx="114" cy="141" r="1.7"/><circle cx="121" cy="139" r="1.7"/><circle cx="128" cy="142" r="1.7"/>
-    <circle cx="112" cy="148" r="1.7"/><circle cx="120" cy="147" r="1.7"/><circle cx="127" cy="149" r="1.7"/>
-    <circle cx="116" cy="154" r="1.7"/><circle cx="124" cy="155" r="1.7"/>
-  </g>
-
-  <!-- Thistles -->
-  <g transform="translate(58 206)">
-    <path d="M0 22 V6" stroke="#1D5137" stroke-width="3"/>
-    <path d="M-6 4 Q0 -10 6 4 Z" fill="#6D3470"/>
-    <path d="M-6 5 Q0 12 6 5 Z" fill="#1D5137"/>
-  </g>
-  <g transform="translate(182 206)">
-    <path d="M0 22 V6" stroke="#1D5137" stroke-width="3"/>
-    <path d="M-6 4 Q0 -10 6 4 Z" fill="#6D3470"/>
-    <path d="M-6 5 Q0 12 6 5 Z" fill="#1D5137"/>
+  <circle cx="120" cy="192" r="19" fill="#F7F3E4" stroke="#8A7842" stroke-width="2"/>
+  <g fill="#C9BD93">
+    <circle cx="113" cy="186" r="1.8"/><circle cx="121" cy="184" r="1.8"/><circle cx="129" cy="187" r="1.8"/>
+    <circle cx="110" cy="193" r="1.8"/><circle cx="119" cy="192" r="1.8"/><circle cx="128" cy="194" r="1.8"/>
+    <circle cx="114" cy="200" r="1.8"/><circle cx="123" cy="201" r="1.8"/>
   </g>
 
   <!-- Banner -->
   <g>
-    <path d="M44 228 L196 228 L206 244 L196 260 L44 260 L34 244 Z" fill="#F5E8C8" stroke="#B58A3A" stroke-width="3"/>
-    <text x="120" y="250" font-family="Georgia, serif" font-size="17" font-weight="bold"
-          fill="#123D2A" letter-spacing="4" text-anchor="middle">INDOOR GOLF</text>
+    <path d="M44 216 L30 224 L44 246 L52 240 Z" fill="#CBB579" stroke="#5B4A22" stroke-width="2"/>
+    <path d="M196 216 L210 224 L196 246 L188 240 Z" fill="#CBB579" stroke="#5B4A22" stroke-width="2"/>
+    <path d="M42 214 Q120 226 198 214 L198 242 Q120 254 42 242 Z"
+          fill="#EFDFAE" stroke="#5B4A22" stroke-width="2.5"/>
+    <text x="120" y="238" text-anchor="middle" font-family="Georgia,serif" font-size="15"
+          font-weight="bold" fill="#1E3B26" letter-spacing="1.5">INDOOR GOLF</text>
+  </g>
+
+  <!-- Thistles -->
+  <g transform="translate(38 230)">
+    <path d="M0 26 Q-2 12 0 4" stroke="#3E6B45" stroke-width="3" fill="none"/>
+    <path d="M-8 6 Q-14 0 -10 -6 L-2 -2 Z" fill="#3E6B45"/>
+    <path d="M8 8 Q14 2 10 -4 L2 0 Z" fill="#3E6B45"/>
+    <ellipse cx="0" cy="-6" rx="7" ry="9" fill="#6D3470"/>
+    <path d="M-7 -4 Q0 6 7 -4 Q4 4 0 4 Q-4 4 -7 -4 Z" fill="#3E6B45"/>
+  </g>
+  <g transform="translate(202 230)">
+    <path d="M0 26 Q2 12 0 4" stroke="#3E6B45" stroke-width="3" fill="none"/>
+    <path d="M-8 6 Q-14 0 -10 -6 L-2 -2 Z" fill="#3E6B45"/>
+    <path d="M8 8 Q14 2 10 -4 L2 0 Z" fill="#3E6B45"/>
+    <ellipse cx="0" cy="-6" rx="7" ry="9" fill="#6D3470"/>
+    <path d="M-7 -4 Q0 6 7 -4 Q4 4 0 4 Q-4 4 -7 -4 Z" fill="#3E6B45"/>
   </g>
 </svg>
