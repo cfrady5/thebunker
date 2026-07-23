@@ -18,7 +18,14 @@ import { cn } from "@/lib/utils";
  * Opening-list signup form. `compact` renders the abbreviated
  * footer variant; the full variant includes interest checkboxes.
  */
-export function NewsletterForm({ compact = false }: { compact?: boolean }) {
+export function NewsletterForm({
+  compact = false,
+  dark = compact,
+}: {
+  compact?: boolean;
+  /** Renders labels/copy for a dark background (footer). */
+  dark?: boolean;
+}) {
   const [result, setResult] = React.useState<{ ok: boolean; message: string } | null>(
     null,
   );
@@ -75,7 +82,7 @@ export function NewsletterForm({ compact = false }: { compact?: boolean }) {
 
       <div className={cn("grid gap-3", !compact && "sm:grid-cols-2")}>
         <div className="space-y-1.5">
-          <Label htmlFor={`${idPrefix}-first`} className={cn(compact && "text-cream/90")}>
+          <Label htmlFor={`${idPrefix}-first`} className={cn(dark && "text-cream/90")}>
             First name
           </Label>
           <Input
@@ -91,7 +98,7 @@ export function NewsletterForm({ compact = false }: { compact?: boolean }) {
           ) : null}
         </div>
         <div className="space-y-1.5">
-          <Label htmlFor={`${idPrefix}-last`} className={cn(compact && "text-cream/90")}>
+          <Label htmlFor={`${idPrefix}-last`} className={cn(dark && "text-cream/90")}>
             Last name
           </Label>
           <Input
@@ -109,7 +116,7 @@ export function NewsletterForm({ compact = false }: { compact?: boolean }) {
       </div>
 
       <div className="space-y-1.5">
-        <Label htmlFor={`${idPrefix}-email`} className={cn(compact && "text-cream/90")}>
+        <Label htmlFor={`${idPrefix}-email`} className={cn(dark && "text-cream/90")}>
           Email
         </Label>
         <Input
@@ -173,7 +180,7 @@ export function NewsletterForm({ compact = false }: { compact?: boolean }) {
         <label
           className={cn(
             "flex cursor-pointer items-start gap-2.5 text-xs leading-relaxed",
-            compact ? "text-cream/70" : "text-charcoal-muted",
+            dark ? "text-cream/70" : "text-charcoal-muted",
           )}
         >
           <Checkbox
@@ -201,7 +208,7 @@ export function NewsletterForm({ compact = false }: { compact?: boolean }) {
       <Button
         type="submit"
         disabled={pending}
-        variant={compact ? "gold" : "default"}
+        variant={dark ? "gold" : "default"}
         className={cn(compact && "w-full")}
       >
         {pending ? (
