@@ -1,18 +1,13 @@
-"use client";
-
-import * as React from "react";
 import Image from "next/image";
-import { Pause, Play } from "lucide-react";
 import type { GalleryImage } from "@/lib/content/home";
 import { cn } from "@/lib/utils";
 
 /**
  * Continuously scrolling photo marquee. The track holds two copies
  * of the image set and translates -50% on a linear loop, so the
- * scroll never ends. Accessibility: an explicit pause/play control
- * (WCAG 2.2.2), auto-pause on hover and keyboard focus, and under
- * prefers-reduced-motion the animation is disabled in favor of a
- * normal swipe/scrollable row.
+ * scroll never ends. The motion auto-pauses on hover and keyboard
+ * focus, and under prefers-reduced-motion the animation is disabled
+ * in favor of a normal swipe/scrollable row.
  */
 export function CommunityGallery({
   images,
@@ -23,15 +18,10 @@ export function CommunityGallery({
   eyebrow: string;
   heading: string;
 }) {
-  const [paused, setPaused] = React.useState(false);
-
   const renderSet = (hidden: boolean) => (
     <ul
       aria-hidden={hidden || undefined}
-      className={cn(
-        "flex shrink-0 gap-5 pr-5",
-        hidden && "motion-reduce:hidden",
-      )}
+      className={cn("flex shrink-0 gap-5 pr-5", hidden && "motion-reduce:hidden")}
     >
       {images.map((image) => (
         <li
@@ -71,31 +61,10 @@ export function CommunityGallery({
           aria-label="Photo gallery of life at The Bunker"
           className="group mt-12 overflow-hidden motion-reduce:overflow-x-auto"
         >
-          <div
-            className={cn(
-              "flex w-max animate-marquee group-focus-within:[animation-play-state:paused] group-hover:[animation-play-state:paused] motion-reduce:animate-none",
-            )}
-            style={paused ? { animationPlayState: "paused" } : undefined}
-          >
+          <div className="flex w-max animate-marquee group-focus-within:[animation-play-state:paused] group-hover:[animation-play-state:paused] motion-reduce:animate-none">
             {renderSet(false)}
             {renderSet(true)}
           </div>
-        </div>
-
-        <div className="mt-8 flex justify-center motion-reduce:hidden">
-          <button
-            type="button"
-            aria-pressed={paused}
-            aria-label={paused ? "Resume gallery scrolling" : "Pause gallery scrolling"}
-            onClick={() => setPaused(!paused)}
-            className="flex h-11 w-11 items-center justify-center rounded-full border border-cream/25 text-cream/80 transition-colors hover:border-gold hover:text-gold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold"
-          >
-            {paused ? (
-              <Play aria-hidden className="h-4 w-4" />
-            ) : (
-              <Pause aria-hidden className="h-4 w-4" />
-            )}
-          </button>
         </div>
       </div>
     </section>

@@ -134,7 +134,7 @@ const config: Config = {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
         "fade-rise": "fade-rise 0.4s ease-out both",
-        marquee: "marquee 45s linear infinite",
+        marquee: "marquee 42.75s linear infinite",
       },
     },
   },
