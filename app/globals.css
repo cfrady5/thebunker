@@ -135,6 +135,37 @@
   }
 }
 
+/* Cinematic hero: drifting gold light motes + scroll cue. */
+@keyframes mote {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0);
+    opacity: 0.25;
+  }
+  50% {
+    transform: translate3d(14px, -26px, 0);
+    opacity: 0.85;
+  }
+}
+.animate-mote {
+  animation: mote 12s ease-in-out infinite;
+}
+
+@keyframes scroll-cue {
+  0%,
+  100% {
+    transform: translateY(0);
+    opacity: 0.45;
+  }
+  50% {
+    transform: translateY(8px);
+    opacity: 0.9;
+  }
+}
+.animate-scroll-cue {
+  animation: scroll-cue 2.2s ease-in-out infinite;
+}
+
 /* Skip link — visually hidden until focused. */
 .skip-link {
   position: absolute;

@@ -8,7 +8,9 @@ const menuLinks = [
   { href: "/book", label: "Reservations" },
   { href: "/menu", label: "Menu" },
   { href: "/leagues", label: "Leagues" },
+  { href: "/events", label: "Events" },
   { href: "/about", label: "About" },
+  { href: "/contact", label: "Contact" },
 ];
 
 const infoLinks = [

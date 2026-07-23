@@ -50,7 +50,48 @@ export const homeCopy = {
   footer: {
     statement: "A year-round place to play, learn, compete and connect.",
   },
-} as const;
+  why: [
+    {
+      title: "No dress code. No gatekeeping.",
+      body: "Scratch golfers and total beginners share the same bays. If you're curious about golf, you belong here.",
+    },
+    {
+      title: "Weather-proof, year-round.",
+      body: "Snow in January or storms in July — inside it's always 72° with a perfect lie.",
+    },
+    {
+      title: "Built for Linton.",
+      body: "Local drafts at the bar, local musicians on the stage, local causes on the calendar.",
+    },
+  ],
+  faqs: [
+    {
+      q: "I've never used a golf simulator. Is that okay?",
+      a: "Absolutely — our team sets up your bay, picks an easy game mode and shows you the basics. Most first-timers are hitting shots within five minutes.",
+    },
+    {
+      q: "How does pricing work?",
+      a: "You rent the bay by the hour — not per person. Up to six people can share one bay and split the cost however you like.",
+    },
+    {
+      q: "Do I need my own clubs?",
+      a: "No. Bring your own or use our rental sets — right-handed, left-handed and junior clubs included.",
+    },
+    {
+      q: "Can kids play?",
+      a: "Yes! Kids are welcome in bays with an adult, and our youth clinics and junior league are built just for them.",
+    },
+    {
+      q: "When do you open?",
+      a: "Fall 2026. Join the opening list below and you'll be first to know when reservations go live.",
+    },
+  ],
+  /**
+   * Real customer quotes only — populated after opening. The
+   * testimonials section stays hidden while this is empty.
+   */
+  testimonials: [] as Array<{ quote: string; name: string }>,
+};
 
 export interface GalleryImage {
   src: string;

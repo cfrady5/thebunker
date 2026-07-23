@@ -2,10 +2,25 @@ import type { Metadata } from "next";
 import { getSiteSettings, bookingIsOpen } from "@/lib/settings";
 import { buildMetadata, localBusinessJsonLd } from "@/lib/seo/metadata";
 import { homeCopy, galleryImages } from "@/lib/content/home";
-import { HeroSection } from "@/components/home/hero";
+import {
+  getLeagues,
+  getMenu,
+  getPublishedEvents,
+} from "@/features/content/queries";
+import { HeroCinematic } from "@/components/home/hero-cinematic";
 import { ValuePillars } from "@/components/home/value-pillars";
 import { CommunityGallery } from "@/components/home/community-gallery";
 import { OpeningSignupSection } from "@/components/home/opening-signup-section";
+import {
+  EventsLeaguesSection,
+  FaqSection,
+  FoodDrinksSection,
+  GiftCardPromo,
+  PrivatePartiesSection,
+  SimulatorSection,
+  TestimonialsSection,
+  WhyBunkerSection,
+} from "@/components/home/premium-sections";
 
 export const metadata: Metadata = buildMetadata({
   title: "Indoor Golf in Linton, Indiana — Opening Fall 2026",
@@ -15,8 +30,28 @@ export const metadata: Metadata = buildMetadata({
 });
 
 export default async function HomePage() {
-  const settings = await getSiteSettings();
+  const [settings, leagues, events, menu] = await Promise.all([
+    getSiteSettings(),
+    getLeagues(),
+    getPublishedEvents(),
+    getMenu(),
+  ]);
   const canBook = bookingIsOpen(settings.business_mode);
+
+  const featuredMenu = menu.items.filter((i) => i.featured && i.available);
+  const drinkCategoryIds = new Set(
+    menu.categories
+      .filter((c) => ["drinks", "beer-wine", "cocktails"].includes(c.slug))
+      .map((c) => c.id),
+  );
+  const featuredFood =
+    featuredMenu.find((i) => !drinkCategoryIds.has(i.category_id)) ??
+    menu.items.find((i) => !drinkCategoryIds.has(i.category_id)) ??
+    null;
+  const featuredDrink =
+    featuredMenu.find((i) => drinkCategoryIds.has(i.category_id)) ??
+    menu.items.find((i) => drinkCategoryIds.has(i.category_id)) ??
+    null;
 
   return (
     <>
@@ -32,18 +67,26 @@ export default async function HomePage() {
           ),
         }}
       />
-      <HeroSection
+      <HeroCinematic
         canBook={canBook}
         eyebrow={settings.hero.eyebrow}
         headline={settings.hero.headline}
         paragraph={settings.hero.subheadline}
       />
       <ValuePillars />
+      <SimulatorSection settings={settings} />
+      <FoodDrinksSection featuredFood={featuredFood} featuredDrink={featuredDrink} />
+      <EventsLeaguesSection events={events} leagues={leagues} />
+      <PrivatePartiesSection />
+      <WhyBunkerSection />
+      <GiftCardPromo />
+      <TestimonialsSection />
       <CommunityGallery
         images={[...galleryImages]}
         eyebrow={homeCopy.gallery.eyebrow}
         heading={homeCopy.gallery.heading}
       />
+      <FaqSection />
       <OpeningSignupSection />
     </>
   );

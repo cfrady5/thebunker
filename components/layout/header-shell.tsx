@@ -8,12 +8,19 @@ import { BrandWordmark, WordmarkLink } from "@/components/brand/wordmark";
 import { cn } from "@/lib/utils";
 
 const NAV_LINKS = [
-  { href: "/book", label: "Reservations" },
-  { href: "/menu", label: "Menu" },
+  { href: "/book", label: "Book a Bay" },
   { href: "/leagues", label: "Leagues" },
+  { href: "/events", label: "Events" },
+  { href: "/menu", label: "Menu" },
   { href: "/about", label: "About" },
+  { href: "/contact", label: "Contact" },
 ];
 
+/**
+ * Premium sticky header. On the homepage it floats transparent over
+ * the cinematic hero and gains a glass blur once scrolled; on other
+ * pages it stays solid dark green.
+ */
 export function HeaderShell({
   canBook,
   signedIn,
@@ -26,9 +33,10 @@ export function HeaderShell({
   const pathname = usePathname();
   const [scrolled, setScrolled] = React.useState(false);
   const [menuOpen, setMenuOpen] = React.useState(false);
+  const overHero = pathname === "/";
 
   React.useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 8);
+    const onScroll = () => setScrolled(window.scrollY > 24);
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
@@ -46,20 +54,25 @@ export function HeaderShell({
   }, [menuOpen]);
 
   const accountHref = staff ? "/admin" : signedIn ? "/account" : "/login";
-  const accountLabel = staff ? "Staff" : signedIn ? "My Account" : "Sign In";
+  const accountLabel = staff ? "Staff" : signedIn ? "Account" : "Sign In";
 
   return (
     <header
       className={cn(
-        "sticky top-0 z-40 bg-primary-dark text-cream transition-shadow duration-200",
-        scrolled && "shadow-[0_2px_16px_rgb(5_36_25/0.35)]",
+        "top-0 z-40 transition-[background-color,box-shadow,backdrop-filter] duration-300",
+        overHero ? "fixed inset-x-0" : "sticky",
+        overHero && !scrolled && !menuOpen
+          ? "bg-transparent"
+          : "bg-primary-dark/85 shadow-[0_2px_24px_rgb(5_36_25/0.45)] backdrop-blur-md supports-[backdrop-filter]:bg-primary-dark/70",
+        !overHero && "bg-primary-dark/95 supports-[backdrop-filter]:bg-primary-dark/85",
+        menuOpen && "bg-primary-dark",
       )}
     >
-      <div className="mx-auto flex h-[76px] max-w-[1400px] items-center justify-between px-5 md:h-[96px] md:px-8 xl:px-16">
-        <WordmarkLink width={150} className="md:hidden" />
-        <WordmarkLink width={185} className="hidden md:inline-flex" />
+      <div className="mx-auto flex h-[76px] max-w-[1400px] items-center justify-between px-5 md:h-[92px] md:px-8 xl:px-16">
+        <WordmarkLink width={148} className="md:hidden" />
+        <WordmarkLink width={175} className="hidden md:inline-flex" />
 
-        <nav aria-label="Main navigation" className="hidden items-center gap-9 lg:flex">
+        <nav aria-label="Main navigation" className="hidden items-center gap-7 xl:gap-8 lg:flex">
           {NAV_LINKS.map((link) => {
             const active = pathname === link.href || pathname.startsWith(`${link.href}/`);
             return (
@@ -71,7 +84,7 @@ export function HeaderShell({
                   "relative text-[13px] font-semibold uppercase tracking-[0.14em] transition-colors after:absolute after:-bottom-1.5 after:left-0 after:h-px after:bg-gold after:transition-all after:duration-200",
                   active
                     ? "text-cream after:w-full"
-                    : "text-cream/75 after:w-0 hover:text-cream hover:after:w-full",
+                    : "text-cream/80 after:w-0 hover:text-cream hover:after:w-full",
                 )}
               >
                 {link.label}
@@ -83,9 +96,15 @@ export function HeaderShell({
         <div className="flex items-center gap-3">
           <Link
             href={accountHref}
-            className="hidden items-center rounded-md border border-gold/70 px-5 py-2.5 text-[13px] font-semibold uppercase tracking-[0.14em] text-gold transition-colors hover:border-gold hover:bg-gold/10 hover:text-cream focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold lg:inline-flex"
+            className="hidden text-[13px] font-semibold uppercase tracking-[0.14em] text-cream/80 transition-colors hover:text-cream lg:inline-flex"
           >
             {accountLabel}
+          </Link>
+          <Link
+            href={canBook ? "/book" : "/#opening-list"}
+            className="hidden items-center rounded-md bg-gold px-6 py-3 text-[13px] font-semibold uppercase tracking-[0.14em] text-primary-dark shadow-[0_4px_20px_rgb(201_164_106/0.35)] transition-all duration-200 hover:-translate-y-0.5 hover:bg-gold-dark hover:text-cream hover:shadow-[0_8px_28px_rgb(201_164_106/0.45)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cream motion-reduce:hover:translate-y-0 lg:inline-flex"
+          >
+            {canBook ? "Book Now" : "Join the List"}
           </Link>
           <button
             aria-label={menuOpen ? "Close menu" : "Open menu"}
@@ -130,7 +149,7 @@ export function HeaderShell({
               href={canBook ? "/book" : "/#opening-list"}
               className="flex h-12 w-full items-center justify-center rounded-md bg-gold text-sm font-semibold uppercase tracking-wider text-primary-dark transition-colors hover:bg-gold-dark hover:text-cream"
             >
-              {canBook ? "Book a Bay" : "Join the Opening List"}
+              {canBook ? "Book Now" : "Join the Opening List"}
             </Link>
             <div className="mt-5 flex justify-center opacity-60">
               <BrandWordmark width={110} />

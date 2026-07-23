@@ -9,7 +9,7 @@ export function ValuePillars() {
 
   return (
     <section className="bg-cream">
-      <div className="mx-auto max-w-[1400px] px-5 pb-20 pt-4 md:px-8 md:pb-28 xl:px-16">
+      <div className="mx-auto max-w-[1400px] px-5 py-20 md:px-8 md:py-28 xl:px-16">
         <div className="flex items-center justify-center gap-5">
           <span aria-hidden className="h-px w-12 bg-gold/50 sm:w-20" />
           <p className="text-center text-[13px] font-semibold uppercase tracking-[0.28em] text-gold-dark md:text-sm">
