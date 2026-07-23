@@ -109,6 +109,31 @@ export function computeAvailableSlots(input: AvailabilityInput): Slot[] {
 }
 
 /**
+ * Subtracts busy intervals from an open window, returning the free
+ * gaps in order. Used by the staff calendar to show bay openings
+ * alongside reservations.
+ */
+export function computeOpenWindows(openWindow: Interval, busy: Interval[]): Interval[] {
+  const sorted = [...busy]
+    .filter((b) => overlaps(b, openWindow))
+    .sort((a, b) => a.startMs - b.startMs);
+
+  const gaps: Interval[] = [];
+  let cursor = openWindow.startMs;
+  for (const b of sorted) {
+    if (b.startMs > cursor) {
+      gaps.push({ startMs: cursor, endMs: Math.min(b.startMs, openWindow.endMs) });
+    }
+    cursor = Math.max(cursor, b.endMs);
+    if (cursor >= openWindow.endMs) break;
+  }
+  if (cursor < openWindow.endMs) {
+    gaps.push({ startMs: cursor, endMs: openWindow.endMs });
+  }
+  return gaps;
+}
+
+/**
  * Groups per-bay slots into unique start times for the customer UI.
  * Customers pick a time; the system assigns a bay (fewest-capacity
  * fit first, so large bays stay open for large groups).

@@ -65,27 +65,39 @@ export interface GalleryImage {
  */
 export const galleryImages: GalleryImage[] = [
   {
+    src: "/gallery/friends-on-course.jpg",
+    alt: "Friends sizing up the next shot together on the course",
+  },
+  {
     src: "/gallery/putting-stroke.jpg",
     alt: "A golfer lining up a putt on the practice green",
   },
   {
-    src: "/gallery/teed-up.jpg",
-    alt: "A golf ball teed up at dusk, ready for a round",
+    src: "/gallery/sunset-swing.jpg",
+    alt: "A tee shot swung through golden-hour light",
   },
   {
     src: "/gallery/putting-green.jpg",
     alt: "Practice putts rolling toward the hole on the putting green",
   },
   {
+    src: "/gallery/range-basket.jpg",
+    alt: "A basket of range balls waiting on the turf",
+  },
+  {
+    src: "/gallery/teed-up.jpg",
+    alt: "A golf ball teed up at dusk, ready for a round",
+  },
+  {
+    src: "/gallery/ocean-swing.jpg",
+    alt: "A golfer following through on a tee shot by the water",
+  },
+  {
+    src: "/gallery/balls-pile.jpg",
+    alt: "A heap of fresh golf balls",
+  },
+  {
     src: "/gallery/fairway-dusk.jpg",
     alt: "Warm evening light across the turf",
-  },
-  {
-    src: "/gallery/cup-detail.jpg",
-    alt: "A close look at the cup on the putting green",
-  },
-  {
-    src: "/gallery/ball-detail.jpg",
-    alt: "A golf ball balanced on its tee in the evening light",
   },
 ];

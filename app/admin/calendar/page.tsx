@@ -1,12 +1,24 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
-import { facilityLocalToUtc, facilityToday, formatTime } from "@/lib/dates";
-import { AdminPageHeader } from "@/components/admin/ui";
+import {
+  facilityDayOfWeek,
+  facilityLocalToUtc,
+  facilityToday,
+  formatTime,
+} from "@/lib/dates";
+import { computeOpenWindows, type Interval } from "@/lib/availability/engine";
+import { AdminPageHeader, MetricCard } from "@/components/admin/ui";
 import { WalkInDialog } from "@/components/admin/walk-in-dialog";
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
-import type { Booking, SimulatorBay } from "@/types";
+import { cn, formatDuration } from "@/lib/utils";
+import type {
+  BayBlackout,
+  Booking,
+  BusinessHoursRow,
+  SimulatorBay,
+  SpecialHoursRow,
+} from "@/types";
 
 export const metadata: Metadata = { title: "Calendar" };
 
@@ -16,6 +28,14 @@ const STATUS_COLORS: Record<string, string> = {
   payment_pending: "bg-warning/15 border-warning/40 text-warning",
   completed: "bg-border/30 border-border text-charcoal-muted",
 };
+
+interface TimelineEntry {
+  kind: "booking" | "open" | "blackout";
+  startMs: number;
+  endMs: number;
+  booking?: Booking;
+  reason?: string;
+}
 
 export default async function AdminCalendarPage({
   searchParams,
@@ -30,11 +50,13 @@ export default async function AdminCalendarPage({
   const supabase = await createSupabaseServerClient();
   let bays: SimulatorBay[] = [];
   let bookings: Booking[] = [];
+  let blackouts: BayBlackout[] = [];
+  let openWindow: Interval | null = null;
 
   if (supabase) {
     const dayStart = facilityLocalToUtc(date, "00:00").toISOString();
     const dayEnd = facilityLocalToUtc(date, "23:59").toISOString();
-    const [baysRes, bookingsRes] = await Promise.all([
+    const [baysRes, bookingsRes, blackoutsRes, hoursRes, specialRes] = await Promise.all([
       supabase.from("simulator_bays").select("*").order("sort_order"),
       supabase
         .from("bookings")
@@ -43,10 +65,85 @@ export default async function AdminCalendarPage({
         .lte("starts_at", dayEnd)
         .in("status", ["confirmed", "checked_in", "payment_pending", "completed"])
         .order("starts_at"),
+      supabase
+        .from("bay_blackouts")
+        .select("*")
+        .gte("ends_at", dayStart)
+        .lte("starts_at", dayEnd),
+      supabase.from("business_hours").select("*").eq("active", true),
+      supabase.from("special_hours").select("*").eq("date", date),
     ]);
     bays = (baysRes.data ?? []) as SimulatorBay[];
     bookings = (bookingsRes.data ?? []) as Booking[];
+    blackouts = (blackoutsRes.data ?? []) as BayBlackout[];
+
+    const special = ((specialRes.data ?? []) as SpecialHoursRow[])[0];
+    if (special?.closed) {
+      openWindow = null;
+    } else if (special?.opens_at && special?.closes_at) {
+      openWindow = {
+        startMs: facilityLocalToUtc(date, special.opens_at).getTime(),
+        endMs: facilityLocalToUtc(date, special.closes_at).getTime(),
+      };
+    } else {
+      const dow = facilityDayOfWeek(date);
+      const row = ((hoursRes.data ?? []) as BusinessHoursRow[]).find(
+        (h) =>
+          h.day_of_week === dow &&
+          (!h.effective_from || h.effective_from <= date) &&
+          (!h.effective_to || h.effective_to >= date),
+      );
+      if (row) {
+        openWindow = {
+          startMs: facilityLocalToUtc(date, row.opens_at).getTime(),
+          endMs: facilityLocalToUtc(date, row.closes_at).getTime(),
+        };
+      }
+    }
   }
+
+  // Build a per-bay timeline interleaving bookings, blackouts and openings.
+  const liveStatuses = ["confirmed", "checked_in", "payment_pending"];
+  function bayTimeline(bay: SimulatorBay): TimelineEntry[] {
+    const bayBookings = bookings.filter((b) => b.bay_id === bay.id);
+    const bayBlackouts = blackouts.filter(
+      (b) => b.bay_id === null || b.bay_id === bay.id,
+    );
+    const entries: TimelineEntry[] = [
+      ...bayBookings.map<TimelineEntry>((b) => ({
+        kind: "booking",
+        startMs: new Date(b.starts_at).getTime(),
+        endMs: new Date(b.ends_at).getTime(),
+        booking: b,
+      })),
+      ...bayBlackouts.map<TimelineEntry>((b) => ({
+        kind: "blackout",
+        startMs: new Date(b.starts_at).getTime(),
+        endMs: new Date(b.ends_at).getTime(),
+        reason: b.reason ?? b.blackout_type.replace(/_/g, " "),
+      })),
+    ];
+
+    if (openWindow && bay.active && bay.maintenance_status !== "offline") {
+      const busy = entries
+        .filter((e) => e.kind === "blackout" || liveStatuses.includes(e.booking?.status ?? ""))
+        .map((e) => ({ startMs: e.startMs, endMs: e.endMs }));
+      for (const gap of computeOpenWindows(openWindow, busy)) {
+        if (gap.endMs - gap.startMs >= 15 * 60_000) {
+          entries.push({ kind: "open", startMs: gap.startMs, endMs: gap.endMs });
+        }
+      }
+    }
+
+    return entries.sort((a, b) => a.startMs - b.startMs);
+  }
+
+  const liveBookings = bookings.filter((b) => liveStatuses.includes(b.status));
+  const totalOpenMinutes = bays
+    .filter((b) => b.active && b.maintenance_status !== "offline")
+    .flatMap((bay) => bayTimeline(bay))
+    .filter((e) => e.kind === "open")
+    .reduce((sum, e) => sum + (e.endMs - e.startMs) / 60_000, 0);
 
   const prev = new Date(`${date}T12:00:00`);
   prev.setDate(prev.getDate() - 1);
@@ -80,6 +177,23 @@ export default async function AdminCalendarPage({
         }
       />
 
+      <div className="mb-6 grid gap-4 sm:grid-cols-3">
+        <MetricCard label="Reservations" value={String(liveBookings.length)} />
+        <MetricCard
+          label="Open bay time"
+          value={openWindow ? formatDuration(Math.round(totalOpenMinutes)) : "Closed"}
+          hint={openWindow ? "Total unbooked time across bays" : "No hours set for this date"}
+        />
+        <MetricCard
+          label="Facility hours"
+          value={
+            openWindow
+              ? `${formatTime(new Date(openWindow.startMs))} – ${formatTime(new Date(openWindow.endMs))}`
+              : "—"
+          }
+        />
+      </div>
+
       {bays.length === 0 ? (
         <p className="rounded-lg border border-dashed border-border/60 bg-surface p-8 text-center text-sm text-muted-foreground">
           No bays configured yet — seed the database or add bays in Facility → Bays.
@@ -87,12 +201,9 @@ export default async function AdminCalendarPage({
       ) : (
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
           {bays.map((bay) => {
-            const bayBookings = bookings.filter((b) => b.bay_id === bay.id);
+            const timeline = bayTimeline(bay);
             return (
-              <div
-                key={bay.id}
-                className="rounded-lg border border-border/40 bg-surface"
-              >
+              <div key={bay.id} className="rounded-lg border border-border/40 bg-surface">
                 <div className="flex items-center justify-between border-b border-border/40 px-4 py-3">
                   <h2 className="font-serif font-semibold text-primary">{bay.name}</h2>
                   {bay.maintenance_status !== "operational" ? (
@@ -102,26 +213,41 @@ export default async function AdminCalendarPage({
                   ) : null}
                 </div>
                 <div className="space-y-2 p-3">
-                  {bayBookings.length === 0 ? (
+                  {timeline.length === 0 ? (
                     <p className="py-6 text-center text-xs text-muted-foreground">
-                      Open all day
+                      {openWindow ? "No activity" : "Closed"}
                     </p>
                   ) : (
-                    bayBookings.map((b) => (
+                    timeline.map((entry, i) => (
                       <div
-                        key={b.id}
+                        key={i}
                         className={cn(
                           "rounded-md border px-3 py-2 text-xs",
-                          STATUS_COLORS[b.status] ?? "border-border/40 bg-surface-muted",
+                          entry.kind === "open" &&
+                            "border-dashed border-success/50 bg-success/5 text-success",
+                          entry.kind === "blackout" &&
+                            "border-danger/40 bg-danger/10 text-danger",
+                          entry.kind === "booking" &&
+                            (STATUS_COLORS[entry.booking!.status] ??
+                              "border-border/40 bg-surface-muted"),
                         )}
                       >
                         <p className="font-semibold">
-                          {formatTime(b.starts_at)} – {formatTime(b.ends_at)}
+                          {formatTime(new Date(entry.startMs))} –{" "}
+                          {formatTime(new Date(entry.endMs))}
                         </p>
-                        <p className="mt-0.5 truncate">
-                          {b.booking_number} · {b.player_count}p
-                          {b.notes ? ` · ${b.notes}` : ""}
-                        </p>
+                        {entry.kind === "open" ? (
+                          <p className="mt-0.5">
+                            Open · {formatDuration((entry.endMs - entry.startMs) / 60_000)}
+                          </p>
+                        ) : entry.kind === "blackout" ? (
+                          <p className="mt-0.5 truncate">Blocked · {entry.reason}</p>
+                        ) : (
+                          <p className="mt-0.5 truncate">
+                            {entry.booking!.booking_number} · {entry.booking!.player_count}p
+                            {entry.booking!.notes ? ` · ${entry.booking!.notes}` : ""}
+                          </p>
+                        )}
                       </div>
                     ))
                   )}

@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   computeAvailableSlots,
+  computeOpenWindows,
   groupSlotsByTime,
   type AvailabilityInput,
 } from "@/lib/availability/engine";
@@ -131,5 +132,49 @@ describe("groupSlotsByTime", () => {
       }),
     );
     expect(groupSlotsByTime(slots, 6)).toHaveLength(0);
+  });
+});
+
+describe("computeOpenWindows", () => {
+  const window = { startMs: openStart, endMs: openEnd };
+
+  it("returns the whole window when nothing is booked", () => {
+    expect(computeOpenWindows(window, [])).toEqual([window]);
+  });
+
+  it("splits around bookings", () => {
+    const busy = [
+      { startMs: openStart + 2 * HOUR, endMs: openStart + 3 * HOUR },
+      { startMs: openStart + 5 * HOUR, endMs: openStart + 6 * HOUR },
+    ];
+    expect(computeOpenWindows(window, busy)).toEqual([
+      { startMs: openStart, endMs: openStart + 2 * HOUR },
+      { startMs: openStart + 3 * HOUR, endMs: openStart + 5 * HOUR },
+      { startMs: openStart + 6 * HOUR, endMs: openEnd },
+    ]);
+  });
+
+  it("merges overlapping bookings and clips to the window", () => {
+    const busy = [
+      { startMs: openStart - HOUR, endMs: openStart + 2 * HOUR },
+      { startMs: openStart + HOUR, endMs: openStart + 4 * HOUR },
+    ];
+    expect(computeOpenWindows(window, busy)).toEqual([
+      { startMs: openStart + 4 * HOUR, endMs: openEnd },
+    ]);
+  });
+
+  it("returns nothing when fully booked", () => {
+    expect(
+      computeOpenWindows(window, [{ startMs: openStart, endMs: openEnd }]),
+    ).toEqual([]);
+  });
+
+  it("ignores busy intervals outside the window", () => {
+    expect(
+      computeOpenWindows(window, [
+        { startMs: openEnd + HOUR, endMs: openEnd + 2 * HOUR },
+      ]),
+    ).toEqual([window]);
   });
 });
