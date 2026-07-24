@@ -120,6 +120,12 @@ export async function getBusinessMode(): Promise<BusinessMode> {
   return settings.business_mode;
 }
 
+/**
+ * The public site is live in every mode except when the operator has
+ * explicitly paused the business. "Temporarily closed" is the one
+ * switch that takes bookings, gift cards and memberships offline; all
+ * other modes behave as a fully operational, day-one business.
+ */
 export function bookingIsOpen(mode: BusinessMode): boolean {
-  return mode === "reservations_open" || mode === "fully_operational";
+  return mode !== "temporarily_closed";
 }

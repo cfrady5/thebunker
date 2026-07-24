@@ -50,13 +50,12 @@ export default async function LeaguesPage() {
             Don&apos;t see your league yet?
           </h2>
           <p className="mt-3 leading-relaxed text-charcoal-muted">
-            League schedules are being finalized now. Join the interest list, tell
-            us which leagues you&apos;d play in, and we&apos;ll email you the
-            moment registration opens.
+            Tell us which leagues you&apos;d like to play in and we&apos;ll help you
+            find a spot or get a new group started.
           </p>
           <div className="mt-6">
             <Button asChild size="lg">
-              <Link href="/#opening-list">Join the Interest List</Link>
+              <Link href="/contact">Contact Us</Link>
             </Button>
           </div>
         </div>

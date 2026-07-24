@@ -72,7 +72,7 @@ export default async function HighlandStagePage() {
           <SectionHeading
             eyebrow="On the calendar"
             title="Upcoming Stage Nights"
-            description="Programming is scheduled event by event — nothing here is set to a fixed weekly schedule yet."
+            description="Programming is scheduled event by event rather than on a fixed weekly schedule — check the events calendar for what's coming up."
           />
           <div className="mt-10">
             {stageEvents.length > 0 ? (

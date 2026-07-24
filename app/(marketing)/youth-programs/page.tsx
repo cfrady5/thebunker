@@ -94,7 +94,7 @@ export default async function YouthProgramsPage() {
                     </Button>
                   ) : (
                     <Button asChild variant="outline" className="w-full">
-                      <Link href="/#opening-list">Join the Interest List</Link>
+                      <Link href="/contact">Ask About This Program</Link>
                     </Button>
                   )}
                 </div>

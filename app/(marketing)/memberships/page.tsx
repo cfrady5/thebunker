@@ -109,12 +109,12 @@ export default async function MembershipsPage() {
 
         <div className="mx-auto mt-14 max-w-2xl text-center">
           <SectionHeading
-            title="Want first access?"
-            description="Opening-list members get early notice when memberships go on sale — including any founding-member pricing."
+            title="Questions about membership?"
+            description="Not sure which plan fits your game? We're happy to talk it through and help you pick the right one."
           />
           <div className="mt-6">
             <Button asChild size="lg">
-              <Link href="/#opening-list">Join the Opening List</Link>
+              <Link href="/contact">Contact Us</Link>
             </Button>
           </div>
         </div>

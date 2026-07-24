@@ -8,29 +8,24 @@ import { cn } from "@/lib/utils";
 
 const MODES: Array<{ value: BusinessMode; label: string; hint: string }> = [
   {
-    value: "pre_opening",
-    label: "Pre-opening",
-    hint: "Interest collection only; no booking",
-  },
-  {
-    value: "reservations_open",
-    label: "Reservations open",
-    hint: "Booking live ahead of opening day",
-  },
-  {
     value: "fully_operational",
-    label: "Fully operational",
-    hint: "Everything on",
+    label: "Open for business",
+    hint: "Everything live — booking, gift cards, memberships and menu",
   },
   {
     value: "temporarily_closed",
     label: "Temporarily closed",
-    hint: "Pause booking with a notice",
+    hint: "Pause booking, gift cards and memberships with a notice",
   },
 ];
 
+/** Any mode other than "temporarily_closed" means the site is fully live. */
+function normalizeMode(mode: BusinessMode): BusinessMode {
+  return mode === "temporarily_closed" ? "temporarily_closed" : "fully_operational";
+}
+
 export function BusinessModeSwitcher({ current }: { current: BusinessMode }) {
-  const [mode, setMode] = React.useState<BusinessMode>(current);
+  const [mode, setMode] = React.useState<BusinessMode>(normalizeMode(current));
   const [pending, startTransition] = React.useTransition();
   const [message, setMessage] = React.useState<string | null>(null);
 

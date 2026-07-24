@@ -5,7 +5,6 @@ import { getCurrentUser } from "@/lib/permissions";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { BookingFlow } from "@/components/booking/booking-flow";
 import { SectionHeading } from "@/components/marketing/section-heading";
-import { NewsletterForm } from "@/components/marketing/newsletter-form";
 import type { BusinessHoursRow } from "@/types";
 
 export const metadata: Metadata = buildMetadata({
@@ -87,15 +86,16 @@ export default async function BookPage({
       <section className="container max-w-2xl py-16 md:py-24">
         <SectionHeading
           eyebrow="Reservations"
-          title="Reservations Open Soon"
-          description={
-            settings.business_mode === "temporarily_closed"
-              ? "We're temporarily closed and not accepting reservations right now. Check back soon or follow our updates."
-              : `Bay reservations open closer to our ${settings.opening_label} opening. Join the opening list and we'll email you the moment booking goes live — opening-list members get first pick of tee times.`
-          }
+          title="Temporarily Closed"
+          description="We're temporarily closed and not accepting reservations right now. Please check back soon, or reach out and we'll help you plan your visit."
         />
-        <div className="mt-10 rounded-lg border border-border/40 bg-surface p-6 md:p-8">
-          <NewsletterForm />
+        <div className="mt-8 text-center">
+          <a
+            href="/contact"
+            className="inline-flex items-center justify-center rounded-md bg-primary px-6 py-3 text-sm font-semibold text-cream transition-colors hover:bg-primary-dark"
+          >
+            Contact us
+          </a>
         </div>
       </section>
     );

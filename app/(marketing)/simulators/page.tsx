@@ -139,7 +139,7 @@ export default async function SimulatorsPage() {
                 <dd className="mt-1">
                   {settings.simulator.brand
                     ? `Powered by ${settings.simulator.brand}.`
-                    : "We're finalizing our simulator technology partner — details will be announced before opening."}
+                    : "State-of-the-art golf simulators with real-time ball tracking and a library of world-famous courses."}
                 </dd>
               </div>
             </dl>
@@ -167,7 +167,7 @@ export default async function SimulatorsPage() {
                     </h3>
                     <p className="mt-2 text-sm leading-relaxed text-charcoal-muted">
                       {settings.simulator.accessibility_notes ??
-                        "Accessibility details will be published before opening."}{" "}
+                        "We want everyone to be able to play comfortably."}{" "}
                       If you have specific needs, <Link href="/contact" className="font-medium text-primary underline underline-offset-2">contact us</Link> and
                       we&apos;ll make it work.
                     </p>

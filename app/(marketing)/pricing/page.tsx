@@ -130,8 +130,7 @@ export default async function PricingPage() {
             ))}
           </div>
           <p className="mt-8 text-center text-sm text-muted-foreground">
-            Planned membership pricing — final plans and founding-member offers will
-            be announced before opening.{" "}
+            See full membership benefits and choose the plan that fits your game.{" "}
             <Link href="/memberships" className="font-medium text-primary underline underline-offset-2">
               Membership details →
             </Link>

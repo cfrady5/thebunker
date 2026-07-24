@@ -199,8 +199,8 @@ export default async function AccountDashboardPage() {
               </ul>
             ) : (
               <EmptyState
-                title="League registration has not opened yet."
-                description="Tell us which leagues you're interested in and we'll save your spot in line."
+                title="You're not signed up for any leagues yet."
+                description="Browse our leagues and find one that fits your schedule and skill level."
                 action={
                   <Button asChild variant="outline">
                     <Link href="/leagues">Browse Leagues</Link>

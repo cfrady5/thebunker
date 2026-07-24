@@ -51,8 +51,12 @@ export default async function ContactPage({
             <div>
               <p className="font-semibold text-charcoal">Location</p>
               <p className="text-sm text-charcoal-muted">
-                {settings.facility.address_line1 ?? "Address announced soon"}
-                <br />
+                {settings.facility.address_line1 ? (
+                  <>
+                    {settings.facility.address_line1}
+                    <br />
+                  </>
+                ) : null}
                 {settings.facility.city}, {settings.facility.state}
               </p>
             </div>

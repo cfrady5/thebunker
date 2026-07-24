@@ -85,7 +85,7 @@ export default async function LessonsPage() {
                     </Button>
                   ) : (
                     <Button asChild variant="outline" className="w-full">
-                      <Link href="/#opening-list">Join the Interest List</Link>
+                      <Link href="/contact">Ask About This Lesson</Link>
                     </Button>
                   )}
                 </div>

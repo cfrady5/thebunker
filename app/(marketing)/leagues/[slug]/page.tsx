@@ -175,11 +175,13 @@ export default async function LeagueDetailPage({
                   ) : collectingInterest ? (
                     <>
                       <InlineAlert variant="info">
-                        Registration hasn&apos;t opened yet. Join the interest list
-                        and we&apos;ll email you the moment it does.
+                        Registration for this season isn&apos;t open yet. Contact us
+                        and we&apos;ll let you know the moment it does.
                       </InlineAlert>
                       <Button asChild className="w-full" size="lg">
-                        <Link href="/#opening-list">Join the Interest List</Link>
+                        <Link href="/contact?subject=League interest">
+                          Contact Us
+                        </Link>
                       </Button>
                     </>
                   ) : league.status === "waitlist" || league.status === "full" ? (
