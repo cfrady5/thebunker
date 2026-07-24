@@ -3,12 +3,11 @@
 import * as React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Menu, X } from "lucide-react";
+import { Menu, UserRound, X } from "lucide-react";
 import { BrandWordmark, WordmarkLink } from "@/components/brand/wordmark";
 import { cn } from "@/lib/utils";
 
 const NAV_LINKS = [
-  { href: "/book", label: "Book a Bay" },
   { href: "/leagues", label: "Leagues" },
   { href: "/events", label: "Events" },
   { href: "/menu", label: "Menu" },
@@ -94,9 +93,11 @@ export function HeaderShell({
         <div className="flex items-center gap-3">
           <Link
             href={accountHref}
-            className="hidden text-[13px] font-semibold uppercase tracking-[0.14em] text-cream/80 transition-colors hover:text-cream lg:inline-flex"
+            aria-label={accountLabel}
+            title={accountLabel}
+            className="hidden h-10 w-10 items-center justify-center rounded-full border border-cream/30 text-cream/90 transition-colors hover:border-gold hover:text-gold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold lg:inline-flex"
           >
-            {accountLabel}
+            <UserRound aria-hidden className="h-5 w-5" />
           </Link>
           <Link
             href="/book"
