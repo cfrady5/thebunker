@@ -297,6 +297,19 @@ export interface PrivateEventInquiry {
   created_at: string;
 }
 
+export type ContactMessageStatus = "new" | "read" | "archived";
+
+export interface ContactMessage {
+  id: string;
+  name: string;
+  email: string;
+  subject: string;
+  message: string;
+  status: ContactMessageStatus;
+  handled_by: string | null;
+  created_at: string;
+}
+
 export interface GiftCard {
   id: string;
   code_last4: string;

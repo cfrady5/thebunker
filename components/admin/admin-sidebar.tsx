@@ -13,6 +13,7 @@ import {
   FileClock,
   Gift,
   GraduationCap,
+  Inbox,
   LandPlot,
   LayoutDashboard,
   Mail,
@@ -46,6 +47,12 @@ const NAV: Array<{ heading: string; items: NavItem[] }> = [
       { href: "/admin/bookings", label: "Bookings", icon: ClipboardList },
       { href: "/admin/calendar", label: "Calendar", icon: CalendarDays },
       { href: "/admin/customers", label: "Customers", icon: Users },
+      {
+        href: "/admin/inbox",
+        label: "Inbox",
+        icon: Inbox,
+        roles: ["owner", "manager", "marketing"],
+      },
       {
         href: "/admin/private-events",
         label: "Private Events",

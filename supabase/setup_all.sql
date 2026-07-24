@@ -1,6 +1,6 @@
 -- ============================================================
 -- The Bunker — one-shot database setup
--- Generated from supabase/migrations/0001–0010 + seed.sql.
+-- Generated from supabase/migrations/0001–0011 + seed.sql.
 -- Paste this entire file into the Supabase SQL Editor and run
 -- it once on a fresh project. Safe order is preserved.
 -- ============================================================
@@ -1539,6 +1539,42 @@ create unique index if not exists payments_square_payment_idx
   on public.payments (square_payment_id) where square_payment_id is not null;
 
 -- ------------------------------------------------------------
+-- supabase/migrations/0011_contact_messages.sql
+-- ------------------------------------------------------------
+-- ============================================================
+-- 0011 Contact form inbox
+-- Persists website contact-form submissions so staff can read and
+-- work them from the dashboard (not just an email notification).
+-- ============================================================
+
+create table public.contact_messages (
+  id uuid primary key default gen_random_uuid(),
+  name text not null,
+  email text not null,
+  subject text not null,
+  message text not null,
+  status text not null default 'new' check (status in ('new', 'read', 'archived')),
+  handled_by uuid references public.profiles(id) on delete set null,
+  created_at timestamptz not null default now()
+);
+
+create index contact_messages_status_idx
+  on public.contact_messages (status, created_at desc);
+
+alter table public.contact_messages enable row level security;
+
+-- Staff (owner / manager / marketing) can read and update the inbox.
+create policy "contact_messages_staff_select" on public.contact_messages
+  for select using (public.has_staff_role(array['owner', 'manager', 'marketing']));
+
+create policy "contact_messages_staff_update" on public.contact_messages
+  for update using (public.has_staff_role(array['owner', 'manager', 'marketing']))
+  with check (public.has_staff_role(array['owner', 'manager', 'marketing']));
+
+-- Public submissions are inserted server-side (service role) after
+-- validation, honeypot and rate limiting — no public insert policy.
+
+-- ------------------------------------------------------------
 -- supabase/seed.sql
 -- ------------------------------------------------------------
 -- ============================================================
@@ -1549,7 +1585,7 @@ create unique index if not exists payments_square_payment_idx
 
 -- ---------- Site settings ----------
 insert into public.site_settings (key, value) values
-  ('business_mode', '"reservations_open"'),
+  ('business_mode', '"fully_operational"'),
   ('opening_label', '"Fall 2026"'),
   ('facility', '{
     "name": "The Bunker Indoor Golf",

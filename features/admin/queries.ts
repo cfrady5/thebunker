@@ -1,6 +1,6 @@
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { facilityLocalToUtc, facilityToday } from "@/lib/dates";
-import type { Booking, PrivateEventInquiry, Profile } from "@/types";
+import type { Booking, ContactMessage, PrivateEventInquiry, Profile } from "@/types";
 
 /**
  * Admin queries run through the anon server client so staff RLS
@@ -13,6 +13,7 @@ export interface AdminDashboardData {
   todayRevenueCents: number;
   occupancyPct: number;
   newInquiries: number;
+  newMessages: number;
   interestCount: number;
   pendingPayments: number;
 }
@@ -24,6 +25,7 @@ export async function getAdminDashboard(): Promise<AdminDashboardData> {
     todayRevenueCents: 0,
     occupancyPct: 0,
     newInquiries: 0,
+    newMessages: 0,
     interestCount: 0,
     pendingPayments: 0,
   };
@@ -33,23 +35,28 @@ export async function getAdminDashboard(): Promise<AdminDashboardData> {
   const dayStart = facilityLocalToUtc(today, "00:00").toISOString();
   const dayEnd = facilityLocalToUtc(today, "23:59").toISOString();
 
-  const [bookingsRes, inquiriesRes, interestRes, baysRes, hoursRes] = await Promise.all([
-    supabase
-      .from("bookings")
-      .select("*, profile:profiles(first_name, last_name, email)")
-      .gte("starts_at", dayStart)
-      .lte("starts_at", dayEnd)
-      .order("starts_at"),
-    supabase
-      .from("private_event_inquiries")
-      .select("id", { count: "exact", head: true })
-      .eq("status", "new"),
-    supabase
-      .from("interest_submissions")
-      .select("id", { count: "exact", head: true }),
-    supabase.from("simulator_bays").select("id").eq("active", true),
-    supabase.from("business_hours").select("*").eq("active", true),
-  ]);
+  const [bookingsRes, inquiriesRes, messagesRes, interestRes, baysRes, hoursRes] =
+    await Promise.all([
+      supabase
+        .from("bookings")
+        .select("*, profile:profiles(first_name, last_name, email)")
+        .gte("starts_at", dayStart)
+        .lte("starts_at", dayEnd)
+        .order("starts_at"),
+      supabase
+        .from("private_event_inquiries")
+        .select("id", { count: "exact", head: true })
+        .eq("status", "new"),
+      supabase
+        .from("contact_messages")
+        .select("id", { count: "exact", head: true })
+        .eq("status", "new"),
+      supabase
+        .from("interest_submissions")
+        .select("id", { count: "exact", head: true }),
+      supabase.from("simulator_bays").select("id").eq("active", true),
+      supabase.from("business_hours").select("*").eq("active", true),
+    ]);
 
   const bookings = (bookingsRes.data ?? []) as AdminDashboardData["todaysBookings"];
   const live = bookings.filter((b) =>
@@ -83,9 +90,22 @@ export async function getAdminDashboard(): Promise<AdminDashboardData> {
     todayRevenueCents: revenue,
     occupancyPct,
     newInquiries: inquiriesRes.count ?? 0,
+    newMessages: messagesRes.count ?? 0,
     interestCount: interestRes.count ?? 0,
     pendingPayments,
   };
+}
+
+/** Contact-form submissions for the staff inbox, newest first. */
+export async function getContactMessages(): Promise<ContactMessage[]> {
+  const supabase = await createSupabaseServerClient();
+  if (!supabase) return [];
+  const { data } = await supabase
+    .from("contact_messages")
+    .select("*")
+    .order("created_at", { ascending: false })
+    .limit(200);
+  return (data ?? []) as ContactMessage[];
 }
 
 export async function getRecentBookings(limit = 50) {

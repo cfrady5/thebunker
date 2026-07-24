@@ -4,6 +4,7 @@ import { headers } from "next/headers";
 import { z } from "zod";
 import { contactSchema } from "@/lib/validation/schemas";
 import { checkRateLimit } from "@/lib/rate-limit";
+import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { sendEmail } from "@/lib/resend/send";
 import { ContactMessageEmail } from "@/emails/contact-message";
 
@@ -33,30 +34,46 @@ export async function submitContact(raw: ContactInput): Promise<ActionResult> {
     };
   }
 
+  const d = parsed.data;
+
+  // Primary record: land the message in the staff inbox.
+  const admin = createSupabaseAdminClient();
+  let stored = false;
+  if (admin) {
+    const { error } = await admin.from("contact_messages").insert({
+      name: d.name,
+      email: d.email,
+      subject: d.subject,
+      message: d.message,
+    });
+    stored = !error;
+    if (error) console.error("[contact] failed to store message", error);
+  }
+
+  // Best-effort email notification on top of the inbox.
   const staffEmail = process.env.STAFF_NOTIFICATIONS_EMAIL;
-  if (!staffEmail) {
+  let emailed = false;
+  if (staffEmail) {
+    const sent = await sendEmail({
+      to: staffEmail,
+      subject: `Website message: ${d.subject}`,
+      react: ContactMessageEmail({
+        name: d.name,
+        email: d.email,
+        subject: d.subject,
+        message: d.message,
+      }),
+      replyTo: d.email,
+    });
+    emailed = sent.sent;
+  }
+
+  if (!stored && !emailed) {
     return {
       ok: false,
       message:
         "Messaging isn't connected yet on this preview site. Please email us directly.",
     };
-  }
-
-  const d = parsed.data;
-  const sent = await sendEmail({
-    to: staffEmail,
-    subject: `Website message: ${d.subject}`,
-    react: ContactMessageEmail({
-      name: d.name,
-      email: d.email,
-      subject: d.subject,
-      message: d.message,
-    }),
-    replyTo: d.email,
-  });
-
-  if (!sent.sent) {
-    return { ok: false, message: "Something went wrong sending your message. Please try again." };
   }
 
   return { ok: true, message: "Message sent — we'll get back to you soon!" };

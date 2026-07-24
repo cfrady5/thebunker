@@ -380,6 +380,38 @@ export async function setInquiryStatus(
   return { ok: true, message: "Inquiry updated." };
 }
 
+// ---------- Contact inbox ----------
+
+const CONTACT_STATUSES = ["new", "read", "archived"] as const;
+
+export async function setContactMessageStatus(
+  id: string,
+  status: string,
+): Promise<ActionResult> {
+  const ctx = await withRole(["owner", "manager", "marketing"]);
+  if (isError(ctx)) return ctx;
+  if (!CONTACT_STATUSES.includes(status as (typeof CONTACT_STATUSES)[number])) {
+    return { ok: false, message: "Invalid status." };
+  }
+
+  const { error } = await ctx.admin
+    .from("contact_messages")
+    .update({ status, handled_by: ctx.user.profile.id })
+    .eq("id", id);
+  if (error) return { ok: false, message: error.message };
+
+  await audit(
+    ctx.admin,
+    ctx.user.profile.id,
+    `contact_message_${status}`,
+    "contact_messages",
+    id,
+    { status },
+  );
+  revalidatePath("/admin/inbox");
+  return { ok: true, message: "Message updated." };
+}
+
 // ---------- Leagues / programs / events status ----------
 
 export async function setEntityStatus(

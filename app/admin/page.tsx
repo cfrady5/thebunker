@@ -3,7 +3,7 @@ import {
   CalendarPlus,
   CircleDollarSign,
   Gauge,
-  Mail,
+  MessageSquare,
   PartyPopper,
   TriangleAlert,
 } from "lucide-react";
@@ -70,10 +70,11 @@ export default async function AdminDashboardPage() {
           tone={data.newInquiries > 0 ? "warning" : "default"}
         />
         <MetricCard
-          label="Opening list"
-          value={String(data.interestCount)}
-          hint="Total signups"
-          icon={Mail}
+          label="New messages"
+          value={String(data.newMessages)}
+          hint="Website contact form"
+          icon={MessageSquare}
+          tone={data.newMessages > 0 ? "warning" : "default"}
         />
       </div>
 
