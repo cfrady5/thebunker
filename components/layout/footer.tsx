@@ -141,8 +141,14 @@ export async function SiteFooter() {
           </div>
         </div>
 
-        <div className="mt-14 border-t border-cream/10 pt-6 text-sm text-cream/50">
-          © {year} {settings.facility.name}. All rights reserved.
+        <div className="mt-14 flex flex-col gap-3 border-t border-cream/10 pt-6 text-sm text-cream/50 sm:flex-row sm:items-center sm:justify-between">
+          <p>© {year} {settings.facility.name}. All rights reserved.</p>
+          <Link
+            href="/portal"
+            className="font-medium uppercase tracking-[0.14em] text-cream/50 transition-colors hover:text-gold"
+          >
+            Employee Portal
+          </Link>
         </div>
       </div>
     </footer>
