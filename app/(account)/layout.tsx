@@ -45,7 +45,7 @@ export default async function AccountLayout({
     <div className="flex min-h-screen flex-col">
       <SiteHeader />
       <main id="main-content" className="container flex-1 py-8 md:py-12">
-        <div className="grid gap-8 lg:grid-cols-[220px_1fr]">
+        <div className="grid gap-6 lg:grid-cols-[220px_1fr] lg:gap-8">
           <AccountNav />
           <div className="min-w-0">{children}</div>
         </div>

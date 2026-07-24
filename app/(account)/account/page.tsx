@@ -44,7 +44,7 @@ export default async function AccountDashboardPage() {
     <div>
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
-          <h1 className="font-serif text-display-sm font-semibold text-primary">
+          <h1 className="font-serif text-2xl font-semibold text-primary md:text-display-sm">
             {greeting()}, {user.profile.first_name || "golfer"}.
           </h1>
           <p className="mt-1 text-charcoal-muted">
@@ -53,7 +53,7 @@ export default async function AccountDashboardPage() {
               : `We open ${settings.opening_label} — thanks for being here early.`}
           </p>
         </div>
-        <Button asChild>
+        <Button asChild className="w-full sm:w-auto">
           <Link href={canBook ? "/book" : "/opening-updates"}>
             <CalendarPlus aria-hidden />
             {canBook ? "Book a Bay" : "Opening Updates"}

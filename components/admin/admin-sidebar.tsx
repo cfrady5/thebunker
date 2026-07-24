@@ -240,20 +240,21 @@ export function AdminSidebar({
   return (
     <>
       {/* Mobile top bar */}
-      <div className="fixed inset-x-0 top-0 z-40 flex items-center justify-between border-b border-cream/10 bg-primary-dark px-4 py-3 lg:hidden">
-        <a
-          href="/admin"
+      <div className="fixed inset-x-0 top-0 z-40 flex h-14 items-center justify-between border-b border-cream/10 bg-primary-dark px-4 lg:hidden">
+        <Link
+          href="/"
           className="inline-flex items-center"
-          aria-label="The Bunker — staff dashboard"
+          aria-label="The Bunker — back to main site"
         >
           <Image
             src="/brand/bunker-wordmark-white.png"
             alt="The Bunker"
             width={900}
             height={411}
-            className="h-auto w-[112px]"
+            className="h-auto w-[104px]"
+            priority
           />
-        </a>
+        </Link>
         <button
           aria-label={open ? "Close admin menu" : "Open admin menu"}
           aria-expanded={open}
@@ -264,20 +265,20 @@ export function AdminSidebar({
         </button>
       </div>
       {open ? (
-        <div className="fixed inset-0 z-30 flex flex-col bg-primary-dark pt-14 lg:hidden">
+        <div className="fixed inset-0 top-14 z-30 flex flex-col bg-primary-dark lg:hidden">
           {nav}
         </div>
       ) : null}
-      {/* Spacer for the fixed mobile bar */}
-      <div className="h-12 lg:hidden" aria-hidden />
+      {/* Spacer matching the fixed mobile bar height (h-14) */}
+      <div className="h-14 lg:hidden" aria-hidden />
 
       {/* Desktop sidebar */}
       <aside className="sticky top-0 hidden h-screen w-60 flex-col border-r border-cream/10 bg-primary-dark lg:flex">
         <div className="flex justify-center border-b border-cream/10 px-4 py-5">
-          <a
-            href="/admin"
+          <Link
+            href="/"
             className="inline-flex"
-            aria-label="The Bunker — staff dashboard"
+            aria-label="The Bunker — back to main site"
           >
             <Image
               src="/brand/bunker-wordmark-white.png"
@@ -286,7 +287,7 @@ export function AdminSidebar({
               height={411}
               className="h-auto w-[150px]"
             />
-          </a>
+          </Link>
         </div>
         {nav}
         <div className="border-t border-cream/10 px-4 py-3">
