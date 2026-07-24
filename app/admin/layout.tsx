@@ -67,7 +67,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
         userName={`${user.profile.first_name} ${user.profile.last_name}`.trim()}
         roles={user.roles}
       />
-      <main id="main-content" className="min-w-0 flex-1 px-4 py-6 md:px-8 md:py-8">
+      <main id="main-content" className="min-w-0 flex-1 px-4 pb-6 pt-8 md:px-8 md:py-8">
         {children}
       </main>
     </div>
