@@ -2,17 +2,12 @@ import type { Metadata } from "next";
 import { getSiteSettings, bookingIsOpen } from "@/lib/settings";
 import { buildMetadata, localBusinessJsonLd } from "@/lib/seo/metadata";
 import { homeCopy, galleryImages } from "@/lib/content/home";
-import {
-  getLeagues,
-  getMenu,
-  getPublishedEvents,
-} from "@/features/content/queries";
+import { getMenu } from "@/features/content/queries";
 import { HeroSection } from "@/components/home/hero";
 import { ValuePillars } from "@/components/home/value-pillars";
 import { CommunityGallery } from "@/components/home/community-gallery";
 import { OpeningSignupSection } from "@/components/home/opening-signup-section";
 import {
-  EventsLeaguesSection,
   FoodDrinksSection,
   TestimonialsSection,
 } from "@/components/home/premium-sections";
@@ -25,12 +20,7 @@ export const metadata: Metadata = buildMetadata({
 });
 
 export default async function HomePage() {
-  const [settings, leagues, events, menu] = await Promise.all([
-    getSiteSettings(),
-    getLeagues(),
-    getPublishedEvents(),
-    getMenu(),
-  ]);
+  const [settings, menu] = await Promise.all([getSiteSettings(), getMenu()]);
   const canBook = bookingIsOpen(settings.business_mode);
 
   const featuredMenu = menu.items.filter((i) => i.featured && i.available);
@@ -70,7 +60,6 @@ export default async function HomePage() {
       />
       <ValuePillars />
       <FoodDrinksSection featuredFood={featuredFood} featuredDrink={featuredDrink} />
-      <EventsLeaguesSection events={events} leagues={leagues} />
       <TestimonialsSection />
       <CommunityGallery
         images={[...galleryImages]}
