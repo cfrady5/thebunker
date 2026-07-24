@@ -197,6 +197,13 @@ export function AdminSidebar({
                 <li key={item.href}>
                   <Link
                     href={item.href}
+                    // Prefetch is disabled here on purpose: the sidebar
+                    // renders every admin link at once, and prefetching
+                    // them all fires ~24 concurrent authenticated
+                    // requests that race Supabase's auth-token refresh,
+                    // intermittently bouncing a tab to /login. Navigation
+                    // still works instantly enough without it.
+                    prefetch={false}
                     aria-current={active ? "page" : undefined}
                     onClick={() => setOpen(false)}
                     className={cn(
