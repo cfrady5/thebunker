@@ -210,3 +210,34 @@ export function verifySquareSignature(params: {
     expected.length === provided.length && timingSafeEqual(expected, provided)
   );
 }
+
+/**
+ * Verifies the signature against several candidate notification URLs
+ * and returns the one that matched (or null). Square signs with the
+ * exact Notification URL configured on the subscription, which may
+ * differ from a hardcoded site URL (a different Vercel alias, a
+ * trailing slash, http vs https). Trying the URL Square actually
+ * called — reconstructed from the request — makes verification
+ * resilient without weakening it: the signing key is still required.
+ */
+export function verifySquareSignatureAny(params: {
+  rawBody: string;
+  signatureHeader: string | null;
+  signatureKey: string;
+  candidateUrls: string[];
+}): string | null {
+  if (!params.signatureHeader) return null;
+  for (const url of params.candidateUrls) {
+    if (
+      verifySquareSignature({
+        rawBody: params.rawBody,
+        signatureHeader: params.signatureHeader,
+        notificationUrl: url,
+        signatureKey: params.signatureKey,
+      })
+    ) {
+      return url;
+    }
+  }
+  return null;
+}

@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { verifySquareSignature, type SquarePayment } from "@/lib/square/server";
+import { verifySquareSignatureAny, type SquarePayment } from "@/lib/square/server";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { sendEmail } from "@/lib/resend/send";
 import { BookingConfirmationEmail } from "@/emails/booking-confirmation";
@@ -18,13 +18,43 @@ export async function POST(request: Request) {
   }
 
   const rawBody = await request.text();
-  const valid = verifySquareSignature({
+  const signatureHeader = request.headers.get("x-square-hmacsha256-signature");
+
+  // Square signs with the exact Notification URL on the subscription.
+  // Try the configured site URL, an explicit override, and the URL
+  // Square actually called (reconstructed from proxy headers) so a
+  // differing Vercel alias or trailing slash can't silently 401.
+  const reqUrl = new URL(request.url);
+  const fwdHost =
+    request.headers.get("x-forwarded-host") ??
+    request.headers.get("host") ??
+    reqUrl.host;
+  const fwdProto = request.headers.get("x-forwarded-proto") ?? "https";
+  const candidateUrls = Array.from(
+    new Set(
+      [
+        process.env.SQUARE_WEBHOOK_URL,
+        `${SITE_URL}/api/webhooks/square`,
+        `${fwdProto}://${fwdHost}${reqUrl.pathname}`,
+      ].filter((u): u is string => Boolean(u)),
+    ),
+  );
+
+  const matchedUrl = verifySquareSignatureAny({
     rawBody,
-    signatureHeader: request.headers.get("x-square-hmacsha256-signature"),
-    notificationUrl: `${SITE_URL}/api/webhooks/square`,
+    signatureHeader,
     signatureKey,
+    candidateUrls,
   });
-  if (!valid) {
+  if (!matchedUrl) {
+    console.warn(
+      "[square-webhook] signature mismatch — verify SQUARE_WEBHOOK_SIGNATURE_KEY " +
+        "matches this sandbox/production subscription, and its Notification URL " +
+        "is one of these. Tried:",
+      candidateUrls.join(" | "),
+      "| signature header present:",
+      Boolean(signatureHeader),
+    );
     return NextResponse.json({ error: "Invalid signature" }, { status: 401 });
   }
 
