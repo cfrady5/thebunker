@@ -42,10 +42,10 @@ export default async function EventsPage() {
           <EmptyState
             icon={CalendarDays}
             title="No upcoming events just yet"
-            description="New events are announced to the opening list first — join and you won't miss a thing."
+            description="We're lining up leagues, watch parties and community nights — check back soon, or book a bay in the meantime."
             action={
               <Button asChild>
-                <Link href="/#opening-list">Join the Opening List</Link>
+                <Link href="/book">Book a Bay</Link>
               </Button>
             }
           />

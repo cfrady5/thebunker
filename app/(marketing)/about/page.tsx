@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { buildMetadata } from "@/lib/seo/metadata";
-import { getSiteSettings } from "@/lib/settings";
 import { SectionHeading } from "@/components/marketing/section-heading";
 import { TartanDivider } from "@/components/brand/tartan-divider";
 import { Button } from "@/components/ui/button";
@@ -10,13 +9,11 @@ import { Logo } from "@/components/brand/logo";
 export const metadata: Metadata = buildMetadata({
   title: "About The Bunker — Jay & Amanda's Indoor Golf Clubhouse",
   description:
-    "The story behind The Bunker Indoor Golf: founders Jay and Amanda are building a year-round home for golf and community in Linton, Indiana.",
+    "The story behind The Bunker Indoor Golf: founders Jay and Amanda's year-round home for golf and community in Linton, Indiana.",
   path: "/about",
 });
 
 export default async function AboutPage() {
-  const settings = await getSiteSettings();
-
   return (
     <>
       <section className="container grid items-center gap-10 py-14 md:py-20 lg:grid-cols-2">
@@ -44,8 +41,8 @@ export default async function AboutPage() {
             <p>
               That place is The Bunker: state-of-the-art simulator bays, a putting
               green, real instruction, leagues for every kind of player, and a
-              lounge where you&apos;ll want to stay after your round — opening in
-              Linton in {settings.opening_label}.
+              lounge where you&apos;ll want to stay after your round — right here in
+              Linton, Indiana.
             </p>
           </div>
         </div>

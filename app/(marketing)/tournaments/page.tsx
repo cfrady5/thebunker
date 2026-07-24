@@ -37,10 +37,10 @@ export default async function TournamentsPage() {
           <EmptyState
             icon={Trophy}
             title="No tournaments scheduled yet"
-            description="Tournament announcements land on the opening list first."
+            description="New tournaments post here as they're scheduled — explore our leagues or book a bay in the meantime."
             action={
               <Button asChild>
-                <Link href="/#opening-list">Join the Interest List</Link>
+                <Link href="/leagues">Explore Leagues</Link>
               </Button>
             }
           />

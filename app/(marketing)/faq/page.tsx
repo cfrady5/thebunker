@@ -93,7 +93,7 @@ const faqSections: Array<{
       },
       {
         q: "When are you open?",
-        a: "We open in Fall 2026. Regular hours will be posted here and on Google before opening day. Join the opening list to be notified.",
+        a: "Our current hours are listed at the bottom of every page and on Google. You can reserve a bay online anytime, and walk-ins are welcome when bays are open.",
       },
     ],
   },

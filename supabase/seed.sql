@@ -6,7 +6,7 @@
 
 -- ---------- Site settings ----------
 insert into public.site_settings (key, value) values
-  ('business_mode', '"reservations_open"'),
+  ('business_mode', '"fully_operational"'),
   ('opening_label', '"Fall 2026"'),
   ('facility', '{
     "name": "The Bunker Indoor Golf",

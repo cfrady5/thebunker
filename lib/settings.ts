@@ -22,7 +22,7 @@ const VALID_MODES: BusinessMode[] = [
  */
 function defaultBusinessMode(): BusinessMode {
   const env = process.env.BUSINESS_MODE as BusinessMode | undefined;
-  return env && VALID_MODES.includes(env) ? env : "reservations_open";
+  return env && VALID_MODES.includes(env) ? env : "fully_operational";
 }
 
 export const DEFAULT_SETTINGS: SiteSettings = {

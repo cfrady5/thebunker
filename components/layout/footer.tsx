@@ -91,21 +91,19 @@ export async function SiteFooter() {
                 Contact
               </p>
               <ul className="mt-4 space-y-2 text-cream/75">
-                <li>
-                  {settings.facility.email ? (
+                {settings.facility.email ? (
+                  <li>
                     <a
                       href={`mailto:${settings.facility.email}`}
                       className="text-[14px] leading-snug break-words transition-colors hover:text-cream"
                     >
                       {settings.facility.email}
                     </a>
-                  ) : (
-                    <span className="text-[15px]">Email coming soon</span>
-                  )}
-                </li>
-                <li className="text-[15px]">
-                  {settings.facility.phone ?? "Phone coming soon"}
-                </li>
+                  </li>
+                ) : null}
+                {settings.facility.phone ? (
+                  <li className="text-[15px]">{settings.facility.phone}</li>
+                ) : null}
               </ul>
             </div>
             <div>

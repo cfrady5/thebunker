@@ -24,7 +24,7 @@ export const metadata: Metadata = {
     template: `%s | ${SITE_NAME}`,
   },
   description:
-    "State-of-the-art golf simulators, lessons, leagues, youth programs and community events in Linton, Indiana. Opening Fall 2026.",
+    "State-of-the-art golf simulators, lessons, leagues, youth programs and community events in Linton, Indiana. Book a bay today.",
   openGraph: {
     siteName: SITE_NAME,
     locale: "en_US",

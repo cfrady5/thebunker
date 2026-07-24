@@ -33,7 +33,7 @@ export default async function ContactPage({
             <div>
               <p className="font-semibold text-charcoal">Email</p>
               <p className="text-sm text-charcoal-muted">
-                {settings.facility.email ?? "Coming soon"}
+                {settings.facility.email ?? "Use the form and we'll reply by email."}
               </p>
             </div>
           </div>
