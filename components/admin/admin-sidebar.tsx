@@ -188,7 +188,10 @@ export function AdminSidebar({
   })).filter((group) => group.items.length > 0);
 
   const nav = (
-    <nav aria-label="Admin navigation" className="flex-1 overflow-y-auto px-3 py-4">
+    <nav
+      aria-label="Admin navigation"
+      className="flex-1 overflow-y-auto px-3 py-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+    >
       {visible.map((group) => (
         <div key={group.heading} className="mb-5">
           <p className="mb-1.5 px-2 text-[11px] font-semibold uppercase tracking-widest text-cream/50">
@@ -270,7 +273,7 @@ export function AdminSidebar({
 
       {/* Desktop sidebar */}
       <aside className="sticky top-0 hidden h-screen w-60 flex-col border-r border-cream/10 bg-primary-dark lg:flex">
-        <div className="border-b border-cream/10 px-4 py-5">
+        <div className="flex justify-center border-b border-cream/10 px-4 py-5">
           <a
             href="/admin"
             className="inline-flex"
