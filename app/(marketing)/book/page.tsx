@@ -2,10 +2,11 @@ import type { Metadata } from "next";
 import { buildMetadata } from "@/lib/seo/metadata";
 import { getSiteSettings, bookingIsOpen } from "@/lib/settings";
 import { getCurrentUser } from "@/lib/permissions";
+import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { BookingFlow } from "@/components/booking/booking-flow";
 import { SectionHeading } from "@/components/marketing/section-heading";
 import { NewsletterForm } from "@/components/marketing/newsletter-form";
-import { InlineAlert } from "@/components/feedback/inline-alert";
+import type { BusinessHoursRow } from "@/types";
 
 export const metadata: Metadata = buildMetadata({
   title: "Book a Bay",
@@ -14,15 +15,71 @@ export const metadata: Metadata = buildMetadata({
   path: "/book",
 });
 
+const STATE_NAMES: Record<string, string> = { IN: "Indiana" };
+const DOW_NAMES = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+
+/** "16:00:00" → "4:00 PM" */
+function formatClock(t: string): string {
+  const [hRaw = 0, mRaw = 0] = t.split(":").map(Number);
+  const period = hRaw < 12 ? "AM" : "PM";
+  const hour = ((hRaw + 11) % 12) + 1;
+  return `${hour}:${String(mRaw).padStart(2, "0")} ${period}`;
+}
+
+/**
+ * Groups active weekly hours into compact "Mon – Thu · 4:00 PM – 10:00 PM"
+ * ranges for the experience panel. Returns null when unavailable so the
+ * panel shows an honest placeholder rather than invented hours.
+ */
+async function loadHours(): Promise<Array<{ days: string; range: string }> | null> {
+  const supabase = await createSupabaseServerClient();
+  if (!supabase) return null;
+  const { data } = await supabase
+    .from("business_hours")
+    .select("day_of_week, opens_at, closes_at, active")
+    .eq("active", true);
+  const rows = (data ?? []) as Pick<
+    BusinessHoursRow,
+    "day_of_week" | "opens_at" | "closes_at"
+  >[];
+  if (rows.length === 0) return null;
+
+  const byDow = new Map(rows.map((r) => [r.day_of_week, r]));
+  const order = [1, 2, 3, 4, 5, 6, 0]; // Mon → Sun
+  type Group = { startIdx: number; endIdx: number; range: string };
+  const groups: Group[] = [];
+  order.forEach((dow, idx) => {
+    const row = byDow.get(dow);
+    if (!row) return;
+    const range = `${formatClock(row.opens_at)} – ${formatClock(row.closes_at)}`;
+    const last = groups[groups.length - 1];
+    if (last && last.range === range && last.endIdx === idx - 1) {
+      last.endIdx = idx;
+    } else {
+      groups.push({ startIdx: idx, endIdx: idx, range });
+    }
+  });
+
+  const nm = (idx: number) => DOW_NAMES[order[idx] ?? 0] ?? "";
+  return groups.map((g) => ({
+    days:
+      g.startIdx === g.endIdx
+        ? nm(g.startIdx)
+        : `${nm(g.startIdx)} – ${nm(g.endIdx)}`,
+    range: g.range,
+  }));
+}
+
 export default async function BookPage({
   searchParams,
 }: {
   searchParams: Promise<{ cancelled?: string }>;
 }) {
-  const [settings, user, params] = await Promise.all([
+  const [settings, user, params, hours] = await Promise.all([
     getSiteSettings(),
     getCurrentUser(),
     searchParams,
+    loadHours(),
   ]);
 
   if (!bookingIsOpen(settings.business_mode)) {
@@ -44,31 +101,21 @@ export default async function BookPage({
     );
   }
 
+  const city = settings.facility.city;
+  const state = settings.facility.state;
+  const locationLabel = `${city}, ${STATE_NAMES[state] ?? state}`;
+
   return (
-    <section className="container py-10 md:py-16">
-      <div className="mx-auto mb-8 max-w-3xl">
-        <h1 className="font-serif text-display-sm font-semibold text-primary">
-          Book a Bay
-        </h1>
-        <p className="mt-1 text-charcoal-muted">
-          Reserve your simulator time in a few quick steps.
-        </p>
-        {params.cancelled ? (
-          <div className="mt-4">
-            <InlineAlert variant="info" title="Payment cancelled">
-              No worries — your card wasn&apos;t charged and no reservation was made.
-              Pick up where you left off below.
-            </InlineAlert>
-          </div>
-        ) : null}
-      </div>
-      <BookingFlow
-        signedIn={Boolean(user)}
-        userEmail={user?.profile.email ?? null}
-        taxRate={settings.booking_rules.tax_rate}
-        cancellationHours={settings.booking_rules.cancellation_window_hours}
-        maxPlayers={settings.simulator.max_players_per_bay}
-      />
-    </section>
+    <BookingFlow
+      signedIn={Boolean(user)}
+      userEmail={user?.profile.email ?? null}
+      taxRate={settings.booking_rules.tax_rate}
+      cancellationHours={settings.booking_rules.cancellation_window_hours}
+      maxPlayers={settings.simulator.max_players_per_bay}
+      advanceWindowDays={settings.booking_rules.advance_window_days}
+      hours={hours}
+      locationLabel={locationLabel}
+      cancelled={Boolean(params.cancelled)}
+    />
   );
 }

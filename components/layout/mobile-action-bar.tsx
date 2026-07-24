@@ -1,9 +1,14 @@
+"use client";
+
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { CalendarPlus, MapPin, Phone, Sparkles } from "lucide-react";
 
 /**
  * Sticky bottom action bar on mobile. Call/Directions appear only
  * once the facility is operating and contact details are final.
+ * Hidden on /book, where the booking flow renders its own sticky
+ * "Continue" bar.
  */
 export function MobileActionBar({
   canBook,
@@ -14,6 +19,9 @@ export function MobileActionBar({
   phone: string | null;
   directionsUrl: string | null;
 }) {
+  const pathname = usePathname();
+  if (pathname === "/book") return null;
+
   const showContact = canBook && (phone || directionsUrl);
 
   return (
