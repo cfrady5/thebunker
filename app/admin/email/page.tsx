@@ -6,7 +6,7 @@ import { AdminPageHeader, DataTable, MetricCard } from "@/components/admin/ui";
 import { Button } from "@/components/ui/button";
 import { formatFacility } from "@/lib/dates";
 
-export const metadata: Metadata = { title: "Opening List" };
+export const metadata: Metadata = { title: "Email Subscribers" };
 
 interface InterestRow {
   id: string;
@@ -41,8 +41,8 @@ export default async function AdminEmailPage() {
   return (
     <div>
       <AdminPageHeader
-        title="Opening List"
-        description="Everyone who signed up for updates, with their interests. Export to CSV for your email platform."
+        title="Email Subscribers"
+        description="Everyone who opted in to email updates, with their interests. Export to CSV for your email platform."
         actions={
           <Button asChild variant="outline" size="sm">
             <Link href="/api/admin/export/interest">

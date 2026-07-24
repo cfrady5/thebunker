@@ -136,12 +136,6 @@ const NAV: Array<{ heading: string; items: NavItem[] }> = [
         icon: Newspaper,
         roles: ["owner", "manager", "marketing"],
       },
-      {
-        href: "/admin/email",
-        label: "Opening List",
-        icon: Mail,
-        roles: ["owner", "manager", "marketing"],
-      },
     ],
   },
   {
@@ -152,6 +146,12 @@ const NAV: Array<{ heading: string; items: NavItem[] }> = [
         label: "Reports",
         icon: BarChart3,
         roles: ["owner", "manager"],
+      },
+      {
+        href: "/admin/email",
+        label: "Email Subscribers",
+        icon: Mail,
+        roles: ["owner", "manager", "marketing"],
       },
       { href: "/admin/team", label: "Team", icon: Users, roles: ["owner"] },
       {
