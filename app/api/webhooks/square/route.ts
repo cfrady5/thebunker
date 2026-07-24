@@ -91,13 +91,29 @@ export async function POST(request: Request) {
         // Idempotent: only transition out of payment_pending once.
         if (booking.status !== "payment_pending") break;
 
-        await admin
+        const { error: confirmErr } = await admin
           .from("bookings")
           .update({ status: "confirmed", square_payment_id: payment.id })
           .eq("id", booking.id);
+        if (confirmErr) {
+          // Return 500 so Square redelivers, rather than marking the
+          // event handled with the booking left payment_pending.
+          console.error("[square-webhook] failed to confirm booking", confirmErr);
+          return NextResponse.json({ error: "Confirm failed" }, { status: 500 });
+        }
 
-        await admin.from("payments").upsert(
-          {
+        // Record the payment. A guarded insert (not upsert) avoids
+        // relying on the partial unique index as an ON CONFLICT
+        // arbiter, which PostgREST cannot target — so the ledger row
+        // is no longer silently dropped. Idempotent across retries and
+        // the created/updated event pair via the existence check.
+        const { data: existingPayment } = await admin
+          .from("payments")
+          .select("id")
+          .eq("square_payment_id", payment.id)
+          .maybeSingle();
+        if (!existingPayment) {
+          const { error: payErr } = await admin.from("payments").insert({
             profile_id: booking.profile_id,
             booking_id: booking.id,
             amount_cents: payment.amount_money?.amount ?? booking.total_cents,
@@ -105,9 +121,11 @@ export async function POST(request: Request) {
             status: "succeeded",
             payment_type: "booking",
             square_payment_id: payment.id,
-          },
-          { onConflict: "square_payment_id", ignoreDuplicates: true },
-        );
+          });
+          if (payErr) {
+            console.error("[square-webhook] failed to record payment", payErr);
+          }
+        }
 
         let firstName = "there";
         let email = booking.guest_email ?? payment.buyer_email_address ?? null;
@@ -138,16 +156,23 @@ export async function POST(request: Request) {
           });
         }
       } else if (payment.status === "FAILED" || payment.status === "CANCELED") {
-        await admin.from("payments").upsert(
-          {
+        const { data: existingFailed } = await admin
+          .from("payments")
+          .select("id")
+          .eq("square_payment_id", payment.id)
+          .maybeSingle();
+        if (!existingFailed) {
+          const { error: payErr } = await admin.from("payments").insert({
             amount_cents: payment.amount_money?.amount ?? 0,
             currency: "usd",
             status: "failed",
             payment_type: "booking",
             square_payment_id: payment.id,
-          },
-          { onConflict: "square_payment_id" },
-        );
+          });
+          if (payErr) {
+            console.error("[square-webhook] failed to record failed payment", payErr);
+          }
+        }
       }
       break;
     }
