@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { createPortal } from "react-dom";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Menu, UserRound, X } from "lucide-react";
@@ -28,6 +29,7 @@ export function HeaderShell({
   const pathname = usePathname();
   const [scrolled, setScrolled] = React.useState(false);
   const [menuOpen, setMenuOpen] = React.useState(false);
+  const [mounted, setMounted] = React.useState(false);
   // Solid dark-green header on every page — it sits above the green hero
   // on the homepage rather than floating transparently over it.
   const overHero = false;
@@ -37,6 +39,10 @@ export function HeaderShell({
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  React.useEffect(() => {
+    setMounted(true);
   }, []);
 
   React.useEffect(() => {
@@ -120,42 +126,54 @@ export function HeaderShell({
         </div>
       </div>
 
-      {/* Mobile menu — full-height dark panel */}
-      {menuOpen ? (
-        <div className="fixed inset-0 top-[76px] z-40 flex flex-col bg-primary-dark lg:hidden">
-          <nav
-            aria-label="Mobile navigation"
-            className="flex flex-1 flex-col gap-1 overflow-y-auto px-6 pt-6"
-          >
-            {NAV_LINKS.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                className="rounded-md px-3 py-4 font-serif text-2xl text-cream transition-colors hover:bg-cream/5"
+      {/*
+        Mobile menu is portaled to <body> on purpose: the header carries a
+        backdrop-filter, which makes it the containing block for fixed
+        descendants — a panel rendered inside it would size against the
+        76px header instead of the viewport. The portal keeps `fixed`
+        viewport-relative.
+      */}
+      {mounted && menuOpen
+        ? createPortal(
+            <div className="fixed inset-x-0 top-[76px] bottom-0 z-50 flex flex-col bg-primary-dark md:top-[92px] lg:hidden">
+              <nav
+                aria-label="Mobile navigation"
+                className="flex flex-1 flex-col gap-1 overflow-y-auto px-6 pt-6"
               >
-                {link.label}
-              </Link>
-            ))}
-            <Link
-              href={accountHref}
-              className="rounded-md px-3 py-4 font-serif text-2xl text-cream transition-colors hover:bg-cream/5"
-            >
-              {accountLabel}
-            </Link>
-          </nav>
-          <div className="border-t border-cream/10 px-6 py-6">
-            <Link
-              href="/book"
-              className="flex h-12 w-full items-center justify-center rounded-md bg-gold text-sm font-semibold uppercase tracking-wider text-primary-dark transition-colors hover:bg-gold-dark hover:text-cream"
-            >
-              Book a Bay
-            </Link>
-            <div className="mt-5 flex justify-center opacity-60">
-              <BrandWordmark width={110} />
-            </div>
-          </div>
-        </div>
-      ) : null}
+                {NAV_LINKS.map((link) => (
+                  <Link
+                    key={link.href}
+                    href={link.href}
+                    onClick={() => setMenuOpen(false)}
+                    className="rounded-md px-3 py-4 font-serif text-2xl text-cream transition-colors hover:bg-cream/5"
+                  >
+                    {link.label}
+                  </Link>
+                ))}
+                <Link
+                  href={accountHref}
+                  onClick={() => setMenuOpen(false)}
+                  className="rounded-md px-3 py-4 font-serif text-2xl text-cream transition-colors hover:bg-cream/5"
+                >
+                  {accountLabel}
+                </Link>
+              </nav>
+              <div className="border-t border-cream/10 px-6 py-6">
+                <Link
+                  href="/book"
+                  onClick={() => setMenuOpen(false)}
+                  className="flex h-12 w-full items-center justify-center rounded-md bg-gold text-sm font-semibold uppercase tracking-wider text-primary-dark transition-colors hover:bg-gold-dark hover:text-cream"
+                >
+                  Book a Bay
+                </Link>
+                <div className="mt-5 flex justify-center opacity-60">
+                  <BrandWordmark width={110} />
+                </div>
+              </div>
+            </div>,
+            document.body,
+          )
+        : null}
     </header>
   );
 }
