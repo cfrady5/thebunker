@@ -1,27 +1,31 @@
 import type { Metadata } from "next";
-import { getSiteSettings, bookingIsOpen } from "@/lib/settings";
+import { getSiteSettings } from "@/lib/settings";
 import { buildMetadata, localBusinessJsonLd } from "@/lib/seo/metadata";
-import { homeCopy, galleryImages } from "@/lib/content/home";
 import { getMenu } from "@/features/content/queries";
+import {
+  loadFacilityHours,
+  loadBayFromHourlyCents,
+} from "@/lib/content/facility-info";
 import { HeroSection } from "@/components/home/hero";
 import { ValuePillars } from "@/components/home/value-pillars";
-import { CommunityGallery } from "@/components/home/community-gallery";
-import { OpeningSignupSection } from "@/components/home/opening-signup-section";
-import {
-  FoodDrinksSection,
-  TestimonialsSection,
-} from "@/components/home/premium-sections";
+import { FacilityOverview } from "@/components/home/facility-overview";
+import { FoodDrinksSection } from "@/components/home/premium-sections";
+import { VisitAndBook } from "@/components/home/visit-and-book";
 
 export const metadata: Metadata = buildMetadata({
-  title: "Indoor Golf in Linton, Indiana — Opening Fall 2026",
+  title: "Indoor Golf in Linton, Indiana",
   description:
-    "The Bunker brings state-of-the-art golf simulators, leagues, lessons, good food and community together in Linton, Indiana. Opening Fall 2026 — join the list.",
+    "The Bunker is Linton, Indiana's home for premium golf simulators, lessons, leagues, food and drinks — year-round. Book a bay today.",
   path: "/",
 });
 
 export default async function HomePage() {
-  const [settings, menu] = await Promise.all([getSiteSettings(), getMenu()]);
-  const canBook = bookingIsOpen(settings.business_mode);
+  const [settings, menu, hours, fromHourlyCents] = await Promise.all([
+    getSiteSettings(),
+    getMenu(),
+    loadFacilityHours(),
+    loadBayFromHourlyCents(),
+  ]);
 
   const featuredMenu = menu.items.filter((i) => i.featured && i.available);
   const drinkCategoryIds = new Set(
@@ -38,6 +42,13 @@ export default async function HomePage() {
     menu.items.find((i) => drinkCategoryIds.has(i.category_id)) ??
     null;
 
+  const directionsQuery = settings.facility.address_line1
+    ? `${settings.facility.name} ${settings.facility.address_line1} ${settings.facility.city} ${settings.facility.state}`
+    : `${settings.facility.name} ${settings.facility.city} ${settings.facility.state}`;
+  const directionsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
+    directionsQuery,
+  )}`;
+
   return (
     <>
       <script
@@ -53,20 +64,19 @@ export default async function HomePage() {
         }}
       />
       <HeroSection
-        canBook={canBook}
         eyebrow={settings.hero.eyebrow}
         headline={settings.hero.headline}
-        paragraph={settings.hero.subheadline}
+        subheadline={settings.hero.subheadline}
       />
       <ValuePillars />
+      <FacilityOverview settings={settings} />
       <FoodDrinksSection featuredFood={featuredFood} featuredDrink={featuredDrink} />
-      <TestimonialsSection />
-      <CommunityGallery
-        images={[...galleryImages]}
-        eyebrow={homeCopy.gallery.eyebrow}
-        heading={homeCopy.gallery.heading}
+      <VisitAndBook
+        facility={settings.facility}
+        fromHourlyCents={fromHourlyCents}
+        hours={hours}
+        directionsUrl={directionsUrl}
       />
-      <OpeningSignupSection />
     </>
   );
 }

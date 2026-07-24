@@ -39,11 +39,11 @@ export const DEFAULT_SETTINGS: SiteSettings = {
     timezone: process.env.NEXT_PUBLIC_FACILITY_TIMEZONE ?? "America/Indiana/Indianapolis",
   },
   hero: {
-    eyebrow: "Coming to Linton, Indiana",
+    eyebrow: "Linton, Indiana",
     // "\n" splits the headline onto separate lines.
     headline: "Indoor Golf.\nReal Connections.",
     subheadline:
-      "State-of-the-art simulators, leagues, lessons, good food and a place for our community to play, compete and connect—year-round.",
+      "Premium simulators, great food and year-round golf in Linton, Indiana.",
   },
   simulator: {
     brand: null,

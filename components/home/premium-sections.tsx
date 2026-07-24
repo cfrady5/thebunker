@@ -117,7 +117,7 @@ export function FoodDrinksSection({
 }) {
   return (
     <section className="bg-cream">
-      <div className="mx-auto max-w-[1400px] px-5 py-20 md:px-8 md:py-28 xl:px-16">
+      <div className="mx-auto max-w-[1400px] px-5 py-14 md:px-8 md:py-20 xl:px-16">
         <Reveal className="max-w-2xl">
           <p className="text-[13px] font-semibold uppercase tracking-[0.28em] text-gold-dark md:text-sm">
             Food &amp; drinks
@@ -131,7 +131,7 @@ export function FoodDrinksSection({
           </p>
         </Reveal>
 
-        <div className="mt-12 grid gap-8 md:grid-cols-2">
+        <div className="mt-10 grid gap-8 md:grid-cols-2">
           {[
             { label: "From the kitchen", item: featuredFood },
             { label: "From the bar", item: featuredDrink },
@@ -161,12 +161,12 @@ export function FoodDrinksSection({
           )}
         </div>
 
-        <Reveal className="mt-10">
+        <Reveal className="mt-9">
           <Link
             href="/menu"
-            className="group inline-flex items-center gap-2 text-sm font-semibold uppercase tracking-wider text-primary transition-colors hover:text-gold-dark"
+            className="group inline-flex h-12 items-center justify-center gap-2 rounded-md bg-primary px-7 text-sm font-semibold uppercase tracking-wider text-cream transition-colors hover:bg-primary-light focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2 focus-visible:ring-offset-cream"
           >
-            See the full menu
+            View Full Menu
             <ArrowRight
               aria-hidden
               className="h-4 w-4 transition-transform group-hover:translate-x-1"

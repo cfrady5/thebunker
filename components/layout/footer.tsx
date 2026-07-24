@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Facebook, Instagram, Mail } from "lucide-react";
 import { getSiteSettings } from "@/lib/settings";
+import { loadFacilityHours } from "@/lib/content/facility-info";
 import { BrandWordmark } from "@/components/brand/wordmark";
 import { homeCopy } from "@/lib/content/home";
 
@@ -23,7 +24,7 @@ const infoLinks = [
 ];
 
 export async function SiteFooter() {
-  const settings = await getSiteSettings();
+  const [settings, hours] = await Promise.all([getSiteSettings(), loadFacilityHours()]);
   const year = new Date().getFullYear();
 
   return (
@@ -89,20 +90,44 @@ export async function SiteFooter() {
               <p className="text-xs font-semibold uppercase tracking-[0.2em] text-gold">
                 Contact
               </p>
-              <ul className="mt-4 space-y-2 text-[15px] text-cream/75">
-                <li className="break-all">
-                  {settings.facility.email ?? "Email coming soon"}
+              <ul className="mt-4 space-y-2 text-cream/75">
+                <li>
+                  {settings.facility.email ? (
+                    <a
+                      href={`mailto:${settings.facility.email}`}
+                      className="text-[14px] leading-snug break-words transition-colors hover:text-cream"
+                    >
+                      {settings.facility.email}
+                    </a>
+                  ) : (
+                    <span className="text-[15px]">Email coming soon</span>
+                  )}
                 </li>
-                <li>{settings.facility.phone ?? "Phone coming soon"}</li>
+                <li className="text-[15px]">
+                  {settings.facility.phone ?? "Phone coming soon"}
+                </li>
               </ul>
             </div>
             <div>
               <p className="text-xs font-semibold uppercase tracking-[0.2em] text-gold">
                 Hours
               </p>
-              <p className="mt-4 text-[15px] text-cream/75">
-                Coming {settings.opening_label}
-              </p>
+              {hours && hours.week.length > 0 ? (
+                <ul className="mt-4 space-y-1.5 text-[15px] text-cream/75">
+                  {hours.week.map((h) => (
+                    <li key={h.days}>
+                      <span className="text-cream/60">{h.days}</span>{" "}
+                      <span className="whitespace-nowrap">{h.range}</span>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="mt-4 text-[15px] text-cream/75">
+                  <Link href="/contact" className="transition-colors hover:text-cream">
+                    Hours &amp; directions
+                  </Link>
+                </p>
+              )}
             </div>
             <div>
               <p className="text-xs font-semibold uppercase tracking-[0.2em] text-gold">

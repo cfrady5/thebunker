@@ -3,7 +3,7 @@
 import * as React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Menu, UserRound, X } from "lucide-react";
+import { Menu, X } from "lucide-react";
 import { BrandWordmark, WordmarkLink } from "@/components/brand/wordmark";
 import { cn } from "@/lib/utils";
 
@@ -56,7 +56,7 @@ export function HeaderShell({
   }, [menuOpen]);
 
   const accountHref = staff ? "/admin" : signedIn ? "/account" : "/login";
-  const accountLabel = staff ? "Staff" : signedIn ? "Account" : "Sign In";
+  const accountLabel = staff ? "Staff" : signedIn ? "My Account" : "Sign In";
 
   return (
     <header
@@ -98,17 +98,15 @@ export function HeaderShell({
         <div className="flex items-center gap-3">
           <Link
             href={accountHref}
-            aria-label={accountLabel}
-            title={accountLabel}
-            className="hidden h-10 w-10 items-center justify-center rounded-full border border-cream/30 text-cream/90 transition-colors hover:border-gold hover:text-gold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold lg:inline-flex"
+            className="hidden text-[13px] font-semibold uppercase tracking-[0.14em] text-cream/80 transition-colors hover:text-cream lg:inline-flex"
           >
-            <UserRound aria-hidden className="h-5 w-5" />
+            {accountLabel}
           </Link>
           <Link
             href={canBook ? "/book" : "/#opening-list"}
             className="hidden items-center rounded-md bg-gold px-6 py-3 text-[13px] font-semibold uppercase tracking-[0.14em] text-primary-dark shadow-[0_4px_20px_rgb(201_164_106/0.35)] transition-all duration-200 hover:-translate-y-0.5 hover:bg-gold-dark hover:text-cream hover:shadow-[0_8px_28px_rgb(201_164_106/0.45)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cream motion-reduce:hover:translate-y-0 lg:inline-flex"
           >
-            {canBook ? "Book Now" : "Join the List"}
+            {canBook ? "Book a Bay" : "Join the List"}
           </Link>
           <button
             aria-label={menuOpen ? "Close menu" : "Open menu"}
@@ -153,7 +151,7 @@ export function HeaderShell({
               href={canBook ? "/book" : "/#opening-list"}
               className="flex h-12 w-full items-center justify-center rounded-md bg-gold text-sm font-semibold uppercase tracking-wider text-primary-dark transition-colors hover:bg-gold-dark hover:text-cream"
             >
-              {canBook ? "Book Now" : "Join the Opening List"}
+              {canBook ? "Book a Bay" : "Join the Opening List"}
             </Link>
             <div className="mt-5 flex justify-center opacity-60">
               <BrandWordmark width={110} />
