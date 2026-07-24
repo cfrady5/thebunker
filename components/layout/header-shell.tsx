@@ -22,13 +22,9 @@ const NAV_LINKS = [
  * pages it stays solid dark green.
  */
 export function HeaderShell({
-  canBook,
   signedIn,
-  staff,
 }: {
-  canBook: boolean;
   signedIn: boolean;
-  staff: boolean;
 }) {
   const pathname = usePathname();
   const [scrolled, setScrolled] = React.useState(false);
@@ -55,8 +51,8 @@ export function HeaderShell({
     };
   }, [menuOpen]);
 
-  const accountHref = staff ? "/admin" : signedIn ? "/account" : "/login";
-  const accountLabel = staff ? "Staff" : signedIn ? "My Account" : "Sign In";
+  const accountHref = signedIn ? "/account" : "/login";
+  const accountLabel = signedIn ? "My Account" : "Sign In";
 
   return (
     <header
@@ -103,10 +99,10 @@ export function HeaderShell({
             {accountLabel}
           </Link>
           <Link
-            href={canBook ? "/book" : "/#opening-list"}
+            href="/book"
             className="hidden items-center rounded-md bg-gold px-6 py-3 text-[13px] font-semibold uppercase tracking-[0.14em] text-primary-dark shadow-[0_4px_20px_rgb(201_164_106/0.35)] transition-all duration-200 hover:-translate-y-0.5 hover:bg-gold-dark hover:text-cream hover:shadow-[0_8px_28px_rgb(201_164_106/0.45)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cream motion-reduce:hover:translate-y-0 lg:inline-flex"
           >
-            {canBook ? "Book a Bay" : "Join the List"}
+            Book a Bay
           </Link>
           <button
             aria-label={menuOpen ? "Close menu" : "Open menu"}
@@ -148,10 +144,10 @@ export function HeaderShell({
           </nav>
           <div className="border-t border-cream/10 px-6 py-6">
             <Link
-              href={canBook ? "/book" : "/#opening-list"}
+              href="/book"
               className="flex h-12 w-full items-center justify-center rounded-md bg-gold text-sm font-semibold uppercase tracking-wider text-primary-dark transition-colors hover:bg-gold-dark hover:text-cream"
             >
-              {canBook ? "Book a Bay" : "Join the Opening List"}
+              Book a Bay
             </Link>
             <div className="mt-5 flex justify-center opacity-60">
               <BrandWordmark width={110} />

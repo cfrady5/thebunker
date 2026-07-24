@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { CalendarPlus, MapPin, Phone, Sparkles } from "lucide-react";
+import { CalendarPlus, MapPin, Phone } from "lucide-react";
 
 /**
  * Sticky bottom action bar on mobile. Call/Directions appear only
@@ -28,18 +28,10 @@ export function MobileActionBar({
     <div className="fixed inset-x-0 bottom-0 z-30 border-t border-border/40 bg-surface/95 pb-[env(safe-area-inset-bottom)] backdrop-blur md:hidden">
       <div className="flex items-stretch">
         <Link
-          href={canBook ? "/book" : "/opening-updates"}
+          href="/book"
           className="flex min-h-[52px] flex-1 items-center justify-center gap-2 bg-primary text-sm font-semibold text-cream transition-colors hover:bg-primary-light"
         >
-          {canBook ? (
-            <>
-              <CalendarPlus aria-hidden className="h-4 w-4" /> Book a Bay
-            </>
-          ) : (
-            <>
-              <Sparkles aria-hidden className="h-4 w-4" /> Join the Opening List
-            </>
-          )}
+          <CalendarPlus aria-hidden className="h-4 w-4" /> Book a Bay
         </Link>
         {showContact && phone ? (
           <a
