@@ -195,15 +195,17 @@ export function AdminSidebar({
                   : pathname.startsWith(item.href);
               return (
                 <li key={item.href}>
-                  <Link
+                  {/*
+                    Full-page navigation (plain <a>, not next/link): admin
+                    pages depend on the Supabase session cookie. Client-side
+                    soft navigations don't reliably apply the middleware's
+                    refreshed Set-Cookie, which desyncs the rotated refresh
+                    token and clears the session — logging staff out on
+                    nearly every click. A full load always applies
+                    Set-Cookie, keeping the session stable.
+                  */}
+                  <a
                     href={item.href}
-                    // Prefetch is disabled here on purpose: the sidebar
-                    // renders every admin link at once, and prefetching
-                    // them all fires ~24 concurrent authenticated
-                    // requests that race Supabase's auth-token refresh,
-                    // intermittently bouncing a tab to /login. Navigation
-                    // still works instantly enough without it.
-                    prefetch={false}
                     aria-current={active ? "page" : undefined}
                     onClick={() => setOpen(false)}
                     className={cn(
@@ -215,7 +217,7 @@ export function AdminSidebar({
                   >
                     <item.icon aria-hidden className="h-4 w-4" />
                     {item.label}
-                  </Link>
+                  </a>
                 </li>
               );
             })}
@@ -229,10 +231,10 @@ export function AdminSidebar({
     <>
       {/* Mobile top bar */}
       <div className="fixed inset-x-0 top-0 z-40 flex items-center justify-between border-b border-cream/10 bg-primary-dark px-4 py-3 lg:hidden">
-        <Link href="/admin" className="flex items-center gap-2">
+        <a href="/admin" className="flex items-center gap-2">
           <Image src="/brand/logo-cream.svg" alt="" width={28} height={33} aria-hidden />
           <span className="font-serif font-semibold text-cream">Bunker Admin</span>
-        </Link>
+        </a>
         <button
           aria-label={open ? "Close admin menu" : "Open admin menu"}
           aria-expanded={open}
@@ -271,9 +273,9 @@ export function AdminSidebar({
             <Link href="/" className="text-cream/70 hover:text-cream">
               View site
             </Link>
-            <Link href="/logout" className="text-cream/70 hover:text-cream">
+            <a href="/logout" className="text-cream/70 hover:text-cream">
               Sign out
-            </Link>
+            </a>
           </div>
         </div>
       </aside>
