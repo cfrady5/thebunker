@@ -310,6 +310,29 @@ export interface ContactMessage {
   created_at: string;
 }
 
+export interface DiscountCode {
+  id: string;
+  code: string;
+  discount_type: "percentage" | "fixed_amount";
+  value: number; // percent (1-100) or cents
+  starts_at: string | null;
+  expires_at: string | null;
+  usage_limit: number | null;
+  usage_count: number;
+  active: boolean;
+  created_by: string | null;
+  created_at: string;
+}
+
+export interface DiscountRedemption {
+  id: string;
+  discount_code_id: string;
+  redeemed_by: string | null;
+  booking_id: string | null;
+  note: string | null;
+  created_at: string;
+}
+
 export interface GiftCard {
   id: string;
   code_last4: string;

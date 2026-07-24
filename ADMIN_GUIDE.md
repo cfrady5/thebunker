@@ -55,7 +55,7 @@ Deactivate with `update staff_roles set active = false where …`.
   The public site reflects status immediately.
 - **Events** — publish or unpublish events inline. Only `published` events are
   visible publicly.
-- **Menu** — mark items unavailable ("86'd") when the kitchen runs out; the
+- **Menu** — mark items out of stock when the kitchen runs out; the
   public menu shows a *Currently unavailable* state.
 - **Site content (`/admin/content`)** — edit the homepage hero, contact
   info/address, and the **business mode**:

@@ -24,7 +24,7 @@ export default async function AdminMenuPage() {
     <div>
       <AdminPageHeader
         title="Menu"
-        description="Mark items unavailable ('86'd') when the kitchen runs out — the public menu updates immediately."
+        description="Mark items out of stock when the kitchen runs out — the public menu updates immediately."
       />
       {categories.length === 0 ? (
         <p className="rounded-lg border border-dashed border-border/60 bg-surface p-8 text-center text-sm text-muted-foreground">

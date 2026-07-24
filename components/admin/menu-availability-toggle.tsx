@@ -32,7 +32,7 @@ export function MenuAvailabilityToggle({
       {pending ? (
         <Loader2 aria-hidden className="animate-spin" />
       ) : available ? (
-        "Mark 86'd"
+        "Mark out of stock"
       ) : (
         "Mark available"
       )}

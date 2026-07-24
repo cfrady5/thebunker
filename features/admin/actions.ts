@@ -412,6 +412,119 @@ export async function setContactMessageStatus(
   return { ok: true, message: "Message updated." };
 }
 
+// ---------- Discount codes ----------
+
+const discountCreateSchema = z.object({
+  code: z
+    .string()
+    .trim()
+    .min(3, "At least 3 characters")
+    .max(40)
+    .regex(/^[A-Za-z0-9_-]+$/, "Letters, numbers, dashes and underscores only"),
+  discount_type: z.enum(["percentage", "fixed_amount"]),
+  value: z.number().int().positive(),
+  usage_limit: z.number().int().positive().nullable().optional(),
+  starts_at: z.string().optional(),
+  expires_at: z.string().optional(),
+});
+
+export async function createDiscountCode(
+  raw: z.infer<typeof discountCreateSchema>,
+): Promise<ActionResult> {
+  const ctx = await withRole(["owner", "manager"]);
+  if (isError(ctx)) return ctx;
+  const parsed = discountCreateSchema.safeParse(raw);
+  if (!parsed.success) {
+    return { ok: false, message: parsed.error.issues[0]?.message ?? "Check the details." };
+  }
+  const d = parsed.data;
+  if (d.discount_type === "percentage" && (d.value < 1 || d.value > 100)) {
+    return { ok: false, message: "Percentage must be between 1 and 100." };
+  }
+
+  const { error } = await ctx.admin.from("discount_codes").insert({
+    code: d.code.toUpperCase(),
+    discount_type: d.discount_type,
+    value: d.value,
+    usage_limit: d.usage_limit ?? null,
+    starts_at: d.starts_at ? new Date(d.starts_at).toISOString() : null,
+    expires_at: d.expires_at ? new Date(d.expires_at).toISOString() : null,
+    active: true,
+    created_by: ctx.user.profile.id,
+  });
+  if (error) {
+    if (error.code === "23505" || /duplicate|unique/i.test(error.message)) {
+      return { ok: false, message: "That code already exists." };
+    }
+    return { ok: false, message: error.message };
+  }
+
+  await audit(ctx.admin, ctx.user.profile.id, "create_discount", "discount_codes", null, {
+    code: d.code.toUpperCase(),
+  });
+  revalidatePath("/admin/discounts");
+  return { ok: true, message: "Discount code created." };
+}
+
+export async function logDiscountUse(
+  codeId: string,
+  note?: string,
+): Promise<ActionResult> {
+  const ctx = await withRole(["owner", "manager", "front_desk"]);
+  if (isError(ctx)) return ctx;
+
+  const { data: code } = await ctx.admin
+    .from("discount_codes")
+    .select("usage_count, usage_limit, active")
+    .eq("id", codeId)
+    .single();
+  if (!code) return { ok: false, message: "Code not found." };
+  if (!code.active) return { ok: false, message: "That code is inactive." };
+  if (code.usage_limit != null && code.usage_count >= code.usage_limit) {
+    return { ok: false, message: "That code has reached its usage limit." };
+  }
+
+  const { error: redErr } = await ctx.admin.from("discount_redemptions").insert({
+    discount_code_id: codeId,
+    redeemed_by: ctx.user.profile.id,
+    note: note?.trim() || null,
+  });
+  if (redErr) return { ok: false, message: redErr.message };
+
+  await ctx.admin
+    .from("discount_codes")
+    .update({ usage_count: code.usage_count + 1 })
+    .eq("id", codeId);
+
+  await audit(ctx.admin, ctx.user.profile.id, "redeem_discount", "discount_codes", codeId);
+  revalidatePath("/admin/discounts");
+  return { ok: true, message: "Use recorded." };
+}
+
+export async function setDiscountActive(
+  codeId: string,
+  active: boolean,
+): Promise<ActionResult> {
+  const ctx = await withRole(["owner", "manager"]);
+  if (isError(ctx)) return ctx;
+
+  const { error } = await ctx.admin
+    .from("discount_codes")
+    .update({ active })
+    .eq("id", codeId);
+  if (error) return { ok: false, message: error.message };
+
+  await audit(
+    ctx.admin,
+    ctx.user.profile.id,
+    active ? "activate_discount" : "deactivate_discount",
+    "discount_codes",
+    codeId,
+  );
+  revalidatePath("/admin/discounts");
+  return { ok: true, message: active ? "Code activated." : "Code deactivated." };
+}
+
 // ---------- Leagues / programs / events status ----------
 
 export async function setEntityStatus(

@@ -1,6 +1,17 @@
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { facilityLocalToUtc, facilityToday } from "@/lib/dates";
-import type { Booking, ContactMessage, PrivateEventInquiry, Profile } from "@/types";
+import type {
+  Booking,
+  ContactMessage,
+  DiscountCode,
+  DiscountRedemption,
+  PrivateEventInquiry,
+  Profile,
+} from "@/types";
+
+type StaffName = { first_name: string; last_name: string } | null;
+export type DiscountCodeRow = DiscountCode & { creator: StaffName };
+export type DiscountRedemptionRow = DiscountRedemption & { redeemer: StaffName };
 
 /**
  * Admin queries run through the anon server client so staff RLS
@@ -94,6 +105,29 @@ export async function getAdminDashboard(): Promise<AdminDashboardData> {
     interestCount: interestRes.count ?? 0,
     pendingPayments,
   };
+}
+
+/** Discount codes with the staff member who created each. */
+export async function getDiscountCodes(): Promise<DiscountCodeRow[]> {
+  const supabase = await createSupabaseServerClient();
+  if (!supabase) return [];
+  const { data } = await supabase
+    .from("discount_codes")
+    .select("*, creator:profiles(first_name, last_name)")
+    .order("created_at", { ascending: false });
+  return (data ?? []) as DiscountCodeRow[];
+}
+
+/** Every discount redemption with the employee who applied it. */
+export async function getDiscountRedemptions(): Promise<DiscountRedemptionRow[]> {
+  const supabase = await createSupabaseServerClient();
+  if (!supabase) return [];
+  const { data } = await supabase
+    .from("discount_redemptions")
+    .select("*, redeemer:profiles(first_name, last_name)")
+    .order("created_at", { ascending: false })
+    .limit(500);
+  return (data ?? []) as DiscountRedemptionRow[];
 }
 
 /** Contact-form submissions for the staff inbox, newest first. */
