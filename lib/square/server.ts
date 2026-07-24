@@ -144,6 +144,59 @@ export async function createBookingPaymentLink(params: {
   };
 }
 
+/**
+ * Creates a Square-hosted checkout page for a gift-card purchase.
+ * The customer pays through Square (our payment method); staff hand
+ * them the link or send it by email.
+ */
+export async function createGiftCardPaymentLink(params: {
+  idempotencyKey: string;
+  referenceId: string; // gift card last4 or short ref
+  description: string;
+  amountCents: number;
+  buyerEmail?: string;
+  redirectUrl: string;
+}): Promise<PaymentLinkResult> {
+  const locationId = await getLocationId();
+  const data = await squareFetch<{
+    payment_link?: { id: string; url: string; order_id: string };
+  }>("/v2/online-checkout/payment-links", {
+    method: "POST",
+    body: {
+      idempotency_key: params.idempotencyKey,
+      order: {
+        location_id: locationId,
+        reference_id: params.referenceId,
+        line_items: [
+          {
+            name: params.description,
+            quantity: "1",
+            base_price_money: { amount: params.amountCents, currency: "USD" },
+          },
+        ],
+      },
+      checkout_options: {
+        redirect_url: params.redirectUrl,
+        ask_for_shipping_address: false,
+        allow_tipping: false,
+      },
+      pre_populated_data: params.buyerEmail
+        ? { buyer_email: params.buyerEmail }
+        : undefined,
+      payment_note: `Gift card ${params.referenceId}`,
+    },
+  });
+
+  if (!data.payment_link?.url) {
+    throw new SquareError("Square returned no payment link", 500, data);
+  }
+  return {
+    url: data.payment_link.url,
+    orderId: data.payment_link.order_id,
+    paymentLinkId: data.payment_link.id,
+  };
+}
+
 // ---------- Payments & refunds ----------
 
 export interface SquarePayment {

@@ -1,11 +1,22 @@
 "use server";
 
+import { randomUUID } from "crypto";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { requireRole, type CurrentUser } from "@/lib/permissions";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { getStripe } from "@/lib/stripe/server";
-import { createRefund as createSquareRefund, isSquareConfigured } from "@/lib/square/server";
+import {
+  createRefund as createSquareRefund,
+  createGiftCardPaymentLink,
+  isSquareConfigured,
+} from "@/lib/square/server";
+import {
+  generateGiftCardCode,
+  giftCardLast4,
+  hashGiftCardCode,
+} from "@/lib/gift-cards/logic";
+import { SITE_URL } from "@/lib/seo/metadata";
 import type { BusinessMode, StaffRole } from "@/types";
 
 export interface ActionResult {
@@ -327,6 +338,250 @@ export async function setMenuItemAvailability(
   revalidatePath("/admin/menu");
   revalidatePath("/menu");
   return { ok: true, message: available ? "Item available." : "Item marked unavailable." };
+}
+
+const menuItemSchema = z.object({
+  id: z.string().uuid().optional(),
+  category_id: z.string().uuid("Pick a category."),
+  name: z.string().trim().min(1, "Enter a name.").max(120),
+  description: z.string().trim().max(600).optional().nullable(),
+  price_cents: z.number().int().min(0).max(1_000_000),
+  dietary_labels: z.array(z.string().trim().min(1)).max(12),
+  allergen_notes: z.string().trim().max(400).optional().nullable(),
+  featured: z.boolean(),
+  available: z.boolean(),
+});
+
+export async function saveMenuItem(
+  raw: z.infer<typeof menuItemSchema>,
+): Promise<ActionResult> {
+  const ctx = await withRole(["owner", "manager", "kitchen", "marketing"]);
+  if (isError(ctx)) return ctx;
+
+  const parsed = menuItemSchema.safeParse(raw);
+  if (!parsed.success) {
+    return { ok: false, message: parsed.error.issues[0]?.message ?? "Invalid item." };
+  }
+  const input = parsed.data;
+  const fields = {
+    category_id: input.category_id,
+    name: input.name,
+    description: input.description?.trim() || null,
+    price_cents: input.price_cents,
+    dietary_labels: input.dietary_labels,
+    allergen_notes: input.allergen_notes?.trim() || null,
+    featured: input.featured,
+    available: input.available,
+  };
+
+  if (input.id) {
+    const { error } = await ctx.admin.from("menu_items").update(fields).eq("id", input.id);
+    if (error) return { ok: false, message: error.message };
+    await audit(ctx.admin, ctx.user.profile.id, "menu_item_update", "menu_items", input.id, fields);
+  } else {
+    // Place new items at the end of their category.
+    const { data: last } = await ctx.admin
+      .from("menu_items")
+      .select("sort_order")
+      .eq("category_id", input.category_id)
+      .order("sort_order", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    const sort_order = ((last?.sort_order as number | undefined) ?? 0) + 1;
+    const { data: created, error } = await ctx.admin
+      .from("menu_items")
+      .insert({ ...fields, sort_order })
+      .select("id")
+      .single();
+    if (error) return { ok: false, message: error.message };
+    await audit(ctx.admin, ctx.user.profile.id, "menu_item_create", "menu_items", created?.id ?? null, fields);
+  }
+
+  revalidatePath("/admin/menu");
+  revalidatePath("/menu");
+  return { ok: true, message: input.id ? "Item saved." : "Item added." };
+}
+
+export async function deleteMenuItem(itemId: string): Promise<ActionResult> {
+  const ctx = await withRole(["owner", "manager"]);
+  if (isError(ctx)) return ctx;
+
+  const { error } = await ctx.admin.from("menu_items").delete().eq("id", itemId);
+  if (error) return { ok: false, message: error.message };
+
+  await audit(ctx.admin, ctx.user.profile.id, "menu_item_delete", "menu_items", itemId);
+  revalidatePath("/admin/menu");
+  revalidatePath("/menu");
+  return { ok: true, message: "Item deleted." };
+}
+
+// ---------- Gift cards ----------
+
+export interface GiftCardIssueResult extends ActionResult {
+  /** Raw code — shown to staff once, never stored. */
+  code?: string;
+  /** Square-hosted checkout URL when paying online. */
+  paymentUrl?: string;
+}
+
+const giftCardIssueSchema = z.object({
+  amount_cents: z.number().int().min(500, "Minimum $5.").max(2_000_000),
+  assign_email: z.string().trim().email().optional().or(z.literal("")),
+  recipient_name: z.string().trim().max(120).optional(),
+  recipient_email: z.string().trim().email().optional().or(z.literal("")),
+  personal_message: z.string().trim().max(500).optional(),
+  delivery_date: z.string().trim().optional(),
+  payment_method: z.enum(["square_link", "cash", "card", "comp", "other"]),
+  payment_reference: z.string().trim().max(120).optional(),
+});
+
+export async function issueGiftCard(
+  raw: z.infer<typeof giftCardIssueSchema>,
+): Promise<GiftCardIssueResult> {
+  const ctx = await withRole(["owner", "manager"]);
+  if (isError(ctx)) return ctx;
+
+  const parsed = giftCardIssueSchema.safeParse(raw);
+  if (!parsed.success) {
+    return { ok: false, message: parsed.error.issues[0]?.message ?? "Invalid input." };
+  }
+  const input = parsed.data;
+
+  // Link the card to a customer account when an email is supplied.
+  let assignedProfileId: string | null = null;
+  const assignEmail = input.assign_email?.trim();
+  if (assignEmail) {
+    const { data: profile } = await ctx.admin
+      .from("profiles")
+      .select("id")
+      .ilike("email", assignEmail)
+      .maybeSingle();
+    if (!profile) {
+      return {
+        ok: false,
+        message: `No account found for ${assignEmail}. Check the email, or leave it blank to issue an unassigned card.`,
+      };
+    }
+    assignedProfileId = profile.id as string;
+  }
+
+  const code = generateGiftCardCode();
+  const last4 = giftCardLast4(code);
+  const recipientEmail = input.recipient_email?.trim() || assignEmail || null;
+  const payViaSquare = input.payment_method === "square_link";
+
+  // Square-link cards stay pending until the customer pays; recorded
+  // payments (cash / card / comp) fund the card immediately.
+  const status: "pending_payment" | "active" = payViaSquare ? "pending_payment" : "active";
+
+  let paymentUrl: string | undefined;
+  let squarePaymentId: string | null =
+    input.payment_method === "card" ? input.payment_reference?.trim() || null : null;
+
+  if (payViaSquare) {
+    if (!isSquareConfigured()) {
+      return {
+        ok: false,
+        message: "Square isn't configured, so an online payment link can't be created. Record the payment method instead.",
+      };
+    }
+    try {
+      const link = await createGiftCardPaymentLink({
+        idempotencyKey: randomUUID(),
+        referenceId: last4,
+        description: `The Bunker gift card — $${(input.amount_cents / 100).toFixed(2)}`,
+        amountCents: input.amount_cents,
+        buyerEmail: recipientEmail ?? undefined,
+        redirectUrl: `${SITE_URL}/account`,
+      });
+      paymentUrl = link.url;
+      squarePaymentId = link.paymentLinkId;
+    } catch (e) {
+      return {
+        ok: false,
+        message: e instanceof Error ? e.message : "Couldn't create a Square payment link.",
+      };
+    }
+  }
+
+  const { data: card, error } = await ctx.admin
+    .from("gift_cards")
+    .insert({
+      code_hash: hashGiftCardCode(code),
+      code_last4: last4,
+      purchaser_profile_id: assignedProfileId,
+      assigned_profile_id: assignedProfileId,
+      issued_by: ctx.user.profile.id,
+      recipient_name: input.recipient_name?.trim() || null,
+      recipient_email: recipientEmail,
+      original_balance_cents: input.amount_cents,
+      remaining_balance_cents: input.amount_cents,
+      status,
+      personal_message: input.personal_message?.trim() || null,
+      delivery_date: input.delivery_date?.trim() || null,
+      square_payment_id: squarePaymentId,
+    })
+    .select("id")
+    .single();
+  if (error) return { ok: false, message: error.message };
+
+  const cardId = card?.id as string | undefined;
+
+  // Ledger: record the purchase, and a payment row for funded cards.
+  if (cardId) {
+    await ctx.admin.from("gift_card_transactions").insert({
+      gift_card_id: cardId,
+      amount_cents: input.amount_cents,
+      transaction_type: "purchase",
+    });
+    if (!payViaSquare) {
+      await ctx.admin.from("payments").insert({
+        profile_id: assignedProfileId,
+        amount_cents: input.amount_cents,
+        status: "succeeded",
+        payment_type: "gift_card",
+        square_payment_id: squarePaymentId,
+      });
+    }
+  }
+
+  await audit(ctx.admin, ctx.user.profile.id, "gift_card_issue", "gift_cards", cardId ?? null, {
+    amount_cents: input.amount_cents,
+    payment_method: input.payment_method,
+    assigned: Boolean(assignedProfileId),
+  });
+  revalidatePath("/admin/gift-cards");
+
+  const where = assignEmail ? ` assigned to ${assignEmail}` : "";
+  return {
+    ok: true,
+    message: payViaSquare
+      ? `Gift card created${where}. Send the customer the Square payment link to fund it.`
+      : `Gift card issued${where}. Give the customer the code below — it won't be shown again.`,
+    code,
+    paymentUrl,
+  };
+}
+
+export async function setGiftCardStatus(
+  id: string,
+  status: "active" | "disabled",
+): Promise<ActionResult> {
+  const ctx = await withRole(["owner", "manager"]);
+  if (isError(ctx)) return ctx;
+
+  const { error } = await ctx.admin
+    .from("gift_cards")
+    .update({ status })
+    .eq("id", id);
+  if (error) return { ok: false, message: error.message };
+
+  await audit(ctx.admin, ctx.user.profile.id, "gift_card_status", "gift_cards", id, { status });
+  revalidatePath("/admin/gift-cards");
+  return {
+    ok: true,
+    message: status === "active" ? "Gift card activated." : "Gift card disabled.",
+  };
 }
 
 // ---------- Private event inquiries ----------

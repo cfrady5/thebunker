@@ -344,6 +344,9 @@ export interface GiftCard {
   delivery_date: string | null;
   personal_message: string | null;
   created_at: string;
+  assigned_profile_id?: string | null;
+  issued_by?: string | null;
+  square_payment_id?: string | null;
 }
 
 export interface SiteFacility {

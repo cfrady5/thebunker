@@ -125,7 +125,7 @@ export async function getGiftCards(profileId: string): Promise<GiftCard[]> {
     .select(
       "id, code_last4, recipient_name, recipient_email, original_balance_cents, remaining_balance_cents, status, delivery_date, personal_message, created_at",
     )
-    .eq("purchaser_profile_id", profileId)
+    .or(`purchaser_profile_id.eq.${profileId},assigned_profile_id.eq.${profileId}`)
     .order("created_at", { ascending: false });
   return (data ?? []) as GiftCard[];
 }
