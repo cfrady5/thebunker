@@ -7,19 +7,14 @@ import {
   getMenu,
   getPublishedEvents,
 } from "@/features/content/queries";
-import { HeroCinematic } from "@/components/home/hero-cinematic";
+import { HeroSection } from "@/components/home/hero";
 import { ValuePillars } from "@/components/home/value-pillars";
 import { CommunityGallery } from "@/components/home/community-gallery";
 import { OpeningSignupSection } from "@/components/home/opening-signup-section";
 import {
   EventsLeaguesSection,
-  FaqSection,
   FoodDrinksSection,
-  GiftCardPromo,
-  PrivatePartiesSection,
-  SimulatorSection,
   TestimonialsSection,
-  WhyBunkerSection,
 } from "@/components/home/premium-sections";
 
 export const metadata: Metadata = buildMetadata({
@@ -67,26 +62,21 @@ export default async function HomePage() {
           ),
         }}
       />
-      <HeroCinematic
+      <HeroSection
         canBook={canBook}
         eyebrow={settings.hero.eyebrow}
         headline={settings.hero.headline}
         paragraph={settings.hero.subheadline}
       />
       <ValuePillars />
-      <SimulatorSection settings={settings} />
       <FoodDrinksSection featuredFood={featuredFood} featuredDrink={featuredDrink} />
       <EventsLeaguesSection events={events} leagues={leagues} />
-      <PrivatePartiesSection />
-      <WhyBunkerSection />
-      <GiftCardPromo />
       <TestimonialsSection />
       <CommunityGallery
         images={[...galleryImages]}
         eyebrow={homeCopy.gallery.eyebrow}
         heading={homeCopy.gallery.heading}
       />
-      <FaqSection />
       <OpeningSignupSection />
     </>
   );
