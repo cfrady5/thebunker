@@ -238,9 +238,18 @@ export function AdminSidebar({
     <>
       {/* Mobile top bar */}
       <div className="fixed inset-x-0 top-0 z-40 flex items-center justify-between border-b border-cream/10 bg-primary-dark px-4 py-3 lg:hidden">
-        <a href="/admin" className="flex items-center gap-2">
-          <Image src="/brand/logo-cream.svg" alt="" width={28} height={33} aria-hidden />
-          <span className="font-serif font-semibold text-cream">Bunker Admin</span>
+        <a
+          href="/admin"
+          className="inline-flex items-center"
+          aria-label="The Bunker — staff dashboard"
+        >
+          <Image
+            src="/brand/bunker-wordmark-white.png"
+            alt="The Bunker"
+            width={900}
+            height={411}
+            className="h-auto w-[112px]"
+          />
         </a>
         <button
           aria-label={open ? "Close admin menu" : "Open admin menu"}
@@ -261,14 +270,20 @@ export function AdminSidebar({
 
       {/* Desktop sidebar */}
       <aside className="sticky top-0 hidden h-screen w-60 flex-col border-r border-cream/10 bg-primary-dark lg:flex">
-        <div className="flex items-center gap-2.5 border-b border-cream/10 px-4 py-4">
-          <Image src="/brand/logo-cream.svg" alt="" width={32} height={37} aria-hidden />
-          <div>
-            <p className="font-serif font-semibold leading-tight text-cream">
-              The Bunker
-            </p>
-            <p className="text-xs text-cream/60">Staff dashboard</p>
-          </div>
+        <div className="border-b border-cream/10 px-4 py-5">
+          <a
+            href="/admin"
+            className="inline-flex"
+            aria-label="The Bunker — staff dashboard"
+          >
+            <Image
+              src="/brand/bunker-wordmark-white.png"
+              alt="The Bunker"
+              width={900}
+              height={411}
+              className="h-auto w-[150px]"
+            />
+          </a>
         </div>
         {nav}
         <div className="border-t border-cream/10 px-4 py-3">

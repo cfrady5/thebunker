@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import {
+  facilityDateKey,
   facilityDayOfWeek,
   facilityLocalToUtc,
   facilityToday,
@@ -9,6 +10,7 @@ import {
 } from "@/lib/dates";
 import { computeOpenWindows, type Interval } from "@/lib/availability/engine";
 import { AdminPageHeader, MetricCard } from "@/components/admin/ui";
+import { CalendarMonthPicker } from "@/components/admin/calendar-month-picker";
 import { WalkInDialog } from "@/components/admin/walk-in-dialog";
 import { Button } from "@/components/ui/button";
 import { cn, formatDuration } from "@/lib/utils";
@@ -37,6 +39,93 @@ interface TimelineEntry {
   reason?: string;
 }
 
+const LIVE_STATUSES = ["confirmed", "checked_in", "payment_pending"];
+
+/**
+ * Days in the given month where open bay time is effectively gone
+ * (< 30 minutes remaining across all active bays) — rendered red in
+ * the date picker. Days the facility is closed are not counted.
+ */
+function computeFullyBooked(params: {
+  year: number;
+  month: number; // 0-based
+  bays: SimulatorBay[];
+  weeklyHours: BusinessHoursRow[];
+  specials: SpecialHoursRow[];
+  bookings: Booking[];
+  blackouts: BayBlackout[];
+}): string[] {
+  const { year, month, bays, weeklyHours, specials, bookings, blackouts } = params;
+  const activeBays = bays.filter((b) => b.active && b.maintenance_status !== "offline");
+  if (activeBays.length === 0) return [];
+
+  const specialByDate = new Map(specials.map((s) => [s.date, s]));
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  const fully: string[] = [];
+
+  for (let d = 1; d <= daysInMonth; d++) {
+    const ds = `${year}-${String(month + 1).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
+
+    let openWindow: Interval | null = null;
+    const special = specialByDate.get(ds);
+    if (special?.closed) {
+      openWindow = null;
+    } else if (special?.opens_at && special?.closes_at) {
+      openWindow = {
+        startMs: facilityLocalToUtc(ds, special.opens_at).getTime(),
+        endMs: facilityLocalToUtc(ds, special.closes_at).getTime(),
+      };
+    } else {
+      const dow = facilityDayOfWeek(ds);
+      const row = weeklyHours.find(
+        (h) =>
+          h.day_of_week === dow &&
+          (!h.effective_from || h.effective_from <= ds) &&
+          (!h.effective_to || h.effective_to >= ds),
+      );
+      if (row) {
+        openWindow = {
+          startMs: facilityLocalToUtc(ds, row.opens_at).getTime(),
+          endMs: facilityLocalToUtc(ds, row.closes_at).getTime(),
+        };
+      }
+    }
+    if (!openWindow || openWindow.endMs <= openWindow.startMs) continue;
+
+    const dayBookings = bookings.filter(
+      (b) => facilityDateKey(b.starts_at) === ds && LIVE_STATUSES.includes(b.status),
+    );
+    const dayBlackouts = blackouts.filter(
+      (b) =>
+        new Date(b.starts_at).getTime() < openWindow!.endMs &&
+        new Date(b.ends_at).getTime() > openWindow!.startMs,
+    );
+
+    let remainingMin = 0;
+    for (const bay of activeBays) {
+      const busy = [
+        ...dayBookings
+          .filter((b) => b.bay_id === bay.id)
+          .map((b) => ({
+            startMs: new Date(b.starts_at).getTime(),
+            endMs: new Date(b.ends_at).getTime(),
+          })),
+        ...dayBlackouts
+          .filter((b) => b.bay_id === null || b.bay_id === bay.id)
+          .map((b) => ({
+            startMs: new Date(b.starts_at).getTime(),
+            endMs: new Date(b.ends_at).getTime(),
+          })),
+      ];
+      for (const gap of computeOpenWindows(openWindow, busy)) {
+        remainingMin += (gap.endMs - gap.startMs) / 60_000;
+      }
+    }
+    if (remainingMin < 30) fully.push(ds);
+  }
+  return fully;
+}
+
 export default async function AdminCalendarPage({
   searchParams,
 }: {
@@ -52,6 +141,11 @@ export default async function AdminCalendarPage({
   let bookings: Booking[] = [];
   let blackouts: BayBlackout[] = [];
   let openWindow: Interval | null = null;
+  let fullyBooked: string[] = [];
+
+  const viewDate = new Date(`${date}T12:00:00`);
+  const viewYear = viewDate.getFullYear();
+  const viewMonth = viewDate.getMonth();
 
   if (supabase) {
     const dayStart = facilityLocalToUtc(date, "00:00").toISOString();
@@ -100,6 +194,39 @@ export default async function AdminCalendarPage({
         };
       }
     }
+
+    // Fully-booked days across the visible month, for the date picker.
+    const mm = String(viewMonth + 1).padStart(2, "0");
+    const lastDay = String(new Date(viewYear, viewMonth + 1, 0).getDate()).padStart(2, "0");
+    const monthStartUtc = facilityLocalToUtc(`${viewYear}-${mm}-01`, "00:00").toISOString();
+    const monthEndUtc = facilityLocalToUtc(`${viewYear}-${mm}-${lastDay}`, "23:59").toISOString();
+    const [monthBookingsRes, monthBlackoutsRes, monthSpecialsRes] = await Promise.all([
+      supabase
+        .from("bookings")
+        .select("*")
+        .gte("starts_at", monthStartUtc)
+        .lte("starts_at", monthEndUtc)
+        .in("status", ["confirmed", "checked_in", "payment_pending"]),
+      supabase
+        .from("bay_blackouts")
+        .select("*")
+        .gte("ends_at", monthStartUtc)
+        .lte("starts_at", monthEndUtc),
+      supabase
+        .from("special_hours")
+        .select("*")
+        .gte("date", `${viewYear}-${mm}-01`)
+        .lte("date", `${viewYear}-${mm}-${lastDay}`),
+    ]);
+    fullyBooked = computeFullyBooked({
+      year: viewYear,
+      month: viewMonth,
+      bays,
+      weeklyHours: (hoursRes.data ?? []) as BusinessHoursRow[],
+      specials: (monthSpecialsRes.data ?? []) as SpecialHoursRow[],
+      bookings: (monthBookingsRes.data ?? []) as Booking[],
+      blackouts: (monthBlackoutsRes.data ?? []) as BayBlackout[],
+    });
   }
 
   // Build a per-bay timeline interleaving bookings, blackouts and openings.
@@ -172,6 +299,13 @@ export default async function AdminCalendarPage({
             <Button asChild variant="outline" size="sm">
               <Link href={`/admin/calendar?date=${fmt(next)}`}>Next →</Link>
             </Button>
+            <CalendarMonthPicker
+              year={viewYear}
+              month={viewMonth}
+              selected={date}
+              today={facilityToday()}
+              fullyBooked={fullyBooked}
+            />
             <WalkInDialog bays={bays.map((b) => ({ id: b.id, name: b.name }))} date={date} />
           </>
         }
