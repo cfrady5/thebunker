@@ -72,8 +72,8 @@ export function HeaderShell({
       )}
     >
       <div className="mx-auto flex h-[76px] max-w-[1400px] items-center justify-between px-5 md:h-[92px] md:px-8 xl:px-16">
-        <WordmarkLink width={148} className="md:hidden" />
-        <WordmarkLink width={175} className="hidden md:inline-flex" />
+        <WordmarkLink width={128} className="md:hidden" />
+        <WordmarkLink width={158} className="hidden md:inline-flex" />
 
         <nav aria-label="Main navigation" className="hidden items-center gap-7 xl:gap-8 lg:flex">
           {NAV_LINKS.map((link) => {
